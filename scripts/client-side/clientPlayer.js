@@ -3,26 +3,36 @@ const DIRECTION = {
     RIGHT: 1
 }
 class RenderState{
-    constructor(spriteMapRow, framesPerSecond, animationFrameLength){
-        this.frame = 0;
+    constructor(spriteMapRow, framesPerSecond, animationFrameLength, startDate = Date.now()){
         this.mapRow = spriteMapRow;
-        this.fps = 1000 / framesPerSecond;
+        this.fps = 1000 / framesPerSecond; //frame length
         this.maxFrames = animationFrameLength; // inclusive
+        this.startDate = startDate;
+    }
+
+    calculateCoords(){
+        return {
+            x: 300,
+            y: 400
+        }
     }
 
 
-    render(ctx, direction, size, coords, spriteMap){
+    render(ctx, deltatime, direction, size, spriteMap){
+        
+        let animationLength = Date.now() - this.startDate;
+        let frame = Math.floor(animationLength / this.fps) % (this.maxFrames); // * (delta time) /  mod (maxFrames * )
+        let coords = this.calculateCoords(deltatime);
+        console.log(frame);
         ctx.save();
         
         ctx.translate(coords.x + size / 2, coords.y + size / 2);
         if(direction == DIRECTION.LEFT){
             ctx.scale(-1, 1);
         }
-        // ctx.drawImage(spriteMap, 0,0);
-        // console.log(spriteMap);
         ctx.drawImage(
             spriteMap, 
-            this.frame * PLAYER_ANIMATION.FRAME_WIDTH,
+            frame * PLAYER_ANIMATION.FRAME_WIDTH,
             this.mapRow * PLAYER_ANIMATION.FRAME_WIDTH,
             PLAYER_ANIMATION.FRAME_WIDTH,
             PLAYER_ANIMATION.FRAME_WIDTH,
@@ -32,7 +42,6 @@ class RenderState{
             size
         );
         ctx.restore();
-        // ctx.fillRect(100,100, 50,50);
     }
 }
 
@@ -45,22 +54,15 @@ class IdleAnimation extends RenderState{
 class PlayerRenderer{
     constructor(ctx, dir, initialPosition, startDate, spriteMap){
         this.ctx = ctx;
-        this.renderState = new RenderState(0, 10, 8);
+        this.renderState = new RenderState(0, 13, 8);
         this.dir = dir;
         this.initialPosition = initialPosition;
         this.startDate = startDate;
         this.spriteMap = spriteMap;
     }
 
-    calculateCoords(){
-        return {
-            x: 300,
-            y: 1000
-        }
-    }
-
-    render(ctx, size){
-        this.renderState.render(ctx, this.dir, size, this.calculateCoords(), this.spriteMap);
+    render(ctx, deltatime, size){
+        this.renderState.render(ctx, deltatime, this.dir, size, this.spriteMap);
     }
 }
 

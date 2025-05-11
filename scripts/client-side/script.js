@@ -15,10 +15,10 @@ let game;
 
 async function waitForImage(image) {
     return new Promise((resolve, reject) => {
-        sceneAssets.onload = function(){
+        image.onload = function(){
             resolve();
         }
-        sceneAssets.onerror = function(){
+        image.onerror = function(){
             reject();
         }
     });
@@ -26,9 +26,11 @@ async function waitForImage(image) {
 
 async function loadAssets(){
     try {
-        await Promise.all([waitForImage(sceneAssets, playerAssets)]);
+        await Promise.all([waitForImage(sceneAssets), waitForImage(playerAssets)]);
         createClientGame();
-    } catch (error) {}
+    } catch (error) {
+        console.error(error);
+    }
 }
 loadAssets();
 
