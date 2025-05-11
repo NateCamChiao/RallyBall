@@ -28,21 +28,34 @@ let clientBall = {
 class Game{
     constructor(ctx, canvas, playerAssests, sceneAssests, gameState = GAMESTATE.UNPAUSED){
         this.ctx = ctx;
-        this.camera = clientCamera;
-        this.state = gameState;
-        this.ball = clientBall;
+        this.canvas = canvas;
         this.assets = {
             player: playerAssests,
             scene: sceneAssests
         }
+        this.state = gameState;
+        this.camera = clientCamera;
+        this.ball = clientBall;
+        this.stopUpdating = false;
         this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.RIGHT, {x: 30, y: 30}, new Date(), this.assets.player)];
         this.findScalingUnit(canvas);
-        this.drawScene();
+        this.updateGame();
+        // setInterval(this.updateGame.bind(this), 100);
 
+        this.lastTimeStamp = -1;
     }
 
-    updateGame(){
-
+    updateGame(currentTime){
+        if(this.lastTimeStamp == -1){
+            // console.log("sdf")
+            this.lastTimeStamp = currentTime;
+        }
+        
+        let deltatime = currentTime - this.lastTimeStamp;
+        this.lastTimeStamp = currentTime;
+        this.drawScene(deltatime);
+        if(!this.stopUpdating)
+            requestAnimationFrame(this.updateGame.bind(this));
     }
     recieveServerData(){}
 
@@ -52,7 +65,7 @@ class Game{
             scalingWidthOffset = 0;
             heightOffset = canvas.height - canvas.width / scalingRatio;
             // console.log(canvas.width / scalingRatio, canvas.height);
-            // heightOffset =
+          // heightOffset =
         } else if (canvas.height * scalingRatio < canvas.width) {
             scalingUnit = canvas.height * 1.8; //0.71 finds target width 1.8 is much closer
             scalingWidthOffset = (canvas.width - scalingUnit) / 2; //half of the target width difference
@@ -60,11 +73,12 @@ class Game{
         }
     }
 
-    renderPlayers(){
-        this.playerList.forEach(player => player.render(this.ctx, scalingUnit * 0.17));
+    renderPlayers(deltatime){
+        this.playerList.forEach(player => player.render(this.ctx, deltatime, scalingUnit * 0.17));
     }
     
-    drawScene() {
+    drawScene(deltatime) {
+        // console.log("draw", deltatime)
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     
         let {cameraX, cameraY} = this.camera.currentPosition();
@@ -91,7 +105,7 @@ class Game{
             netDims.h
         );
         // this.ctx.fillRect(0,0,400,40);
-        this.renderPlayers();
+        this.renderPlayers(deltatime);
         // drawClouds();
         ctx.translate(-this.camera.x, -this.camera.y); // restore translation
         ctx.beginPath();
