@@ -1,6 +1,6 @@
 let canvas = document.querySelector("#game-canvas");
 
-let ctx = canvas.getContext("2d");
+// let ctx = canvas.getContext("2d");
 
 canvas.width = innerWidth;
 canvas.height = innerHeight;
@@ -35,7 +35,7 @@ async function loadAssets(){
 loadAssets();
 
 function createClientGame(){
-    game = new Game(ctx, canvas, playerAssets, sceneAssets);
+    game = new Game(canvas, playerAssets, sceneAssets);
 }
 // createClientGame();
 
