@@ -25,6 +25,7 @@ let clientBall = {
     r: 40,
 }
 
+
 class Game{
     constructor(ctx, canvas, playerAssests, sceneAssests, gameState = GAMESTATE.UNPAUSED){
         this.ctx = ctx;
@@ -43,6 +44,8 @@ class Game{
         // setInterval(this.updateGame.bind(this), 100);
 
         this.lastTimeStamp = -1;
+        this.inputHandler = new InputHandler(5);
+        this.setUpKeyListeners();
     }
 
     updateGame(currentTime){
@@ -207,6 +210,23 @@ class Game{
         this.findScalingUnit(canvas);
         this.drawScene();
     }
+
+    setUpKeyListeners(){
+        document.addEventListener("keydown", e => {
+            
+            this.inputHandler.onKeyDown(e);
+            //todo grab inputHandler.getKeyData();
+            console.table(this.inputHandler.getKeyData())
+        });
+        document.addEventListener("keyup", e => {
+            this.inputHandler.onKeyUp(e);
+            //todo grab inputHandler.getKeyData();
+            console.table(this.inputHandler.getKeyData())
+
+        });
+    }
+
+    
 }
 
 
