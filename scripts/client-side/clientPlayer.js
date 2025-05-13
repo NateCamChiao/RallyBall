@@ -11,6 +11,20 @@ class RenderState{
         this.startDate = startDate;
     }
 
+    /**
+     * Alternate constructor if creating RenderState by passing in the cooresponding ANIMATION_DETAILS
+     */
+
+    static createWithAnimationDetails(animationDetails, initialPosition, startDate = Date.now()){
+        return new RenderState(
+            animationDetails.mapRow,
+            animationDetails.fps,
+            animationDetails.maxFrame,
+            initialPosition,
+            startDate
+        );
+    }
+
     calculateCoords(){
         return {
             x: this.initialPosition.x,
@@ -26,7 +40,6 @@ class RenderState{
     }
 
     render(ctx, deltatime, direction, size, spriteMap){
-        
         let animationLength = Date.now() - this.startDate;
         let frame = Math.floor(animationLength / this.fps) % (this.maxFrames); // * (delta time) /  mod (maxFrames * )
         let coords = this.calculateCoords(deltatime);
@@ -50,28 +63,28 @@ class RenderState{
         ctx.restore();
     }
 }
+/**
+ * IdleAnimation is here to avoid confusion. It inherits everything it needs from RenderState
+ */
+class IdleAnimation extends RenderState{}
 
-class IdleAnimation extends RenderState{
-    calculateCoords(){
+class RunningAnimation extends RenderState{
 
-    }
 }
 
 class PlayerRenderer{
     constructor(ctx, dir, initialPosition, startDate, spriteMap){
         this.ctx = ctx;
-        this.renderState = new RenderState(0, 13, 8, initialPosition);
+        this.renderState = RenderState.createWithAnimationDetails(ANIMATION_DETAILS.Running, initialPosition);
         this.dir = dir;
         this.initialPosition = initialPosition;
         this.startDate = startDate;
         this.spriteMap = spriteMap;
     }
-
     render(ctx, deltatime, size){
         this.renderState.render(ctx, deltatime, this.dir, size, this.spriteMap);
     }
 }
-
 
 class BallRenderer{
     constructor(initialX, initialY, intialHeight, intialVelocity, startDate){
