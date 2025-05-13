@@ -63,13 +63,13 @@ class Game{
     onServerData(){}
 
     findScalingUnit(canvas) {
-        if (canvas.height * scalingRatio >= canvas.width) {
+        if (canvas.height * PERFECT_SCALING_RATIO >= canvas.width) {
             scalingUnit = canvas.width;
             scalingWidthOffset = 0;
-            heightOffset = canvas.height - canvas.width / scalingRatio;
-            // console.log(canvas.width / scalingRatio, canvas.height);
+            heightOffset = canvas.height - canvas.width / PERFECT_SCALING_RATIO;
+            // console.log(canvas.width / PERFECT_SCALING_RATIO, canvas.height);
           // heightOffset =
-        } else if (canvas.height * scalingRatio < canvas.width) {
+        } else if (canvas.height * PERFECT_SCALING_RATIO < canvas.width) {
             scalingUnit = canvas.height * 1.8; //0.71 finds target width 1.8 is much closer
             scalingWidthOffset = (canvas.width - scalingUnit) / 2; //half of the target width difference
             heightOffset = 0;
@@ -216,12 +216,12 @@ class Game{
             
             this.inputHandler.onKeyDown(e);
             //todo grab inputHandler.getKeyData();
-            console.table(this.inputHandler.getKeyData())
+            // console.table(this.inputHandler.getKeyData())
         });
         document.addEventListener("keyup", e => {
             this.inputHandler.onKeyUp(e);
             //todo grab inputHandler.getKeyData();
-            console.table(this.inputHandler.getKeyData())
+            // console.table(this.inputHandler.getKeyData())
 
         });
     }
