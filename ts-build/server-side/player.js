@@ -1,17 +1,17 @@
+"use strict";
 // enum DIRECTION = {
 //     LEFT: 0,
 //     RIGHT: 0
 // }
-
-class StateHandler{
-    constructor(){
+Object.defineProperty(exports, "__esModule", { value: true });
+class StateHandler {
+    constructor() {
         this.playerState;
         this.player;
     }
 }
-
-class ServerPlayer{
-    constructor(){
+class ServerPlayer {
+    constructor() {
         this.name;
         this.id;
         this.position = {

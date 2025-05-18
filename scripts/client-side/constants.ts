@@ -1,4 +1,34 @@
-const ANIMATION_DETAILS = {
+export const PHYSICS_FUNCTIONS = {
+	Idle: function(x: any, y: any, t: any) {
+		return {x: x, y: y}
+	},
+	Running: function(x: any, y: any, t: any){
+		return {
+			x:0,
+			y:0
+		}
+	},
+	Jumping: function(x: any, y: any, t: any){
+		return {
+			x:0,
+			y:0
+		}
+	},
+	Spiking: function(x: any, y: any, t: any){
+		return {
+			x:0,
+			y:0
+		}
+	},
+	Passing: function(x: any, y: any, t: any){
+		return {
+			x:0,
+			y:0
+		}
+	}
+}
+
+export const ANIMATION_DETAILS = {
     Idle: {
 		maxFrame: 4,
 		mapRow: 1,
@@ -40,9 +70,10 @@ const ANIMATION_DETAILS = {
         fps:0
 	},
 	Falling: {
+		freezeFrame: 7,
 		maxFrame: 1,
 		mapRow: 4,
-        fps:Infinity
+        fps:0
 	},
 	Diving: {
 		maxFrame: 8,
@@ -56,9 +87,16 @@ const ANIMATION_DETAILS = {
 	},
 }
 
-const PLAYER_FRAME_WIDTH = 100;// width on sprite map
-const PLAYER_ANIMATION = {
+export const PERFECT_SCALING_RATIO = 1.8;
+
+export const PLAYER_FRAME_WIDTH = 100;// width on sprite map
+export const PLAYER_ANIMATION = {
     FRAME_WIDTH: 100,
     WIDTH: 0,
     HEIGHT: 0
+}
+
+export enum DIRECTION {
+    LEFT = 0,
+    RIGHT = 1
 }
