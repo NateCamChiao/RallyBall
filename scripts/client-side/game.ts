@@ -1,5 +1,5 @@
 import { PlayerRenderer } from "./clientPlayer.js";
-import { DIRECTION, PERFECT_SCALING_RATIO } from "./constants.js";
+import { DIRECTION, PERFECT_SCALING_RATIO, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
 import { InputHandler } from "./inputHandler.js";
 
 const GAMESTATE = {
@@ -98,7 +98,7 @@ export class Game{
     }
 
     renderPlayers(deltatime: number){
-        this.playerList.forEach(player => player.render(this.ctx, deltatime, this.scalingUnit * 0.17));
+        this.playerList.forEach(player => player.render(this.ctx, deltatime, this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE));
     }
 
     serverToClientCoords(x: number, y: number){

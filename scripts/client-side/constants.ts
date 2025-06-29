@@ -195,6 +195,7 @@ export const CLIENT_RENDERING: ClientRenderData = {
 }
 
 export const PERFECT_SCALING_RATIO = 1.8;
+export const SCALING_UNIT_TO_PLAYER_SIZE = 0.17;//multiply by scaling unit to get player size
 
 export const PLAYER_FRAME_WIDTH = 100;// width on sprite map
 export const PLAYER_ANIMATION = {
