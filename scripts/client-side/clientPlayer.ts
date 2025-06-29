@@ -1,4 +1,4 @@
-import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStates, POSITION_FUNCTIONS } from "./constants.js";
+import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStates, POSITION_FUNCTIONS, CLIENT_RENDERING } from "./constants.js";
 
 
 
@@ -12,6 +12,7 @@ class RenderState{
     startDate: number;
     serverToClientCoords: CoordConversionFn;
     playerState: PlayerStates;
+    renderingData: any;
     constructor(spriteMapRow: number, 
         framesPerSecond: number, 
         animationFrameLength: number, 
@@ -30,7 +31,14 @@ class RenderState{
         //method
         this.serverToClientCoords = coordConversion;
     }
-
+    /**
+     * @deprecated
+     * @param spriteMapRow 
+     * @param framesPerSecond 
+     * @param animationFrameLength 
+     * @param freezeFrame 
+     * @returns 
+     */
     addAnimationInfo(spriteMapRow: number, framesPerSecond: number, animationFrameLength: number, freezeFrame = 0){
         this.mapRow = spriteMapRow;
         this.fps = framesPerSecond;
@@ -38,7 +46,13 @@ class RenderState{
         this.freezeFrame = freezeFrame;
         return this;
     }
-
+    /**
+     * @deprecated
+     * @param initialPosition 
+     * @param coordConversion 
+     * @param startDate 
+     * @returns 
+     */
     addCoordInfo(initialPosition: Coordinates, coordConversion: CoordConversionFn, startDate = Date.now()){
         this.initialPosition = initialPosition;
         this.serverToClientCoords = coordConversion;
@@ -52,14 +66,18 @@ class RenderState{
 
     static createWithAnimationDetails(animationDetails: any, initialPosition: Coordinates, coordConversion: CoordConversionFn, startDate = Date.now()){
         return new RenderState(
-            animationDetails.mapRow,
-            animationDetails.fps,
-            animationDetails.maxFrame,
+            animationDetails.animation.mapRow,
+            animationDetails.animation.fps,
+            animationDetails.animation.maxFrame,
             initialPosition,
             coordConversion,
             animationDetails.freezeFrame ?? 0,
-            startDate
+            startDate,
+            animationDetails
         );
+    }
+    addClientRenderingData(clientRenderingData: any){
+        this.renderingData = clientRenderingData;
     }
     //client-side prediction
     calculateClientCoords(direction: DIRECTION): Coordinates{
@@ -68,6 +86,7 @@ class RenderState{
         
         //todo plug into fn(initialPos, t)
         // console.log(PHYSICS_FUNCTIONS[this.playerState](this.initialPosition, direction, timeElapsed));
+
 
         return this.serverToClientCoords(x, y);
     }
@@ -119,7 +138,7 @@ export class PlayerRenderer{
     spriteMap: any;
     constructor(ctx: any, dir: number, initialPosition: { x: number; y: number; }, startDate: Date, spriteMap: any, coordConvertingFunction: CoordConversionFn){
         this.ctx = ctx;
-        this.renderState = RenderState.createWithAnimationDetails(ANIMATION_DETAILS.Idle, initialPosition, coordConvertingFunction);
+        this.renderState = RenderState.createWithAnimationDetails(CLIENT_RENDERING.Idle, initialPosition, coordConvertingFunction);
         this.dir = dir;
         this.initialPosition = initialPosition;
         this.startDate = startDate;
