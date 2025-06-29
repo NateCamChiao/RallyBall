@@ -1,6 +1,6 @@
-import { PlayerRenderer } from "./clientPlayer";
-import { DIRECTION, PERFECT_SCALING_RATIO } from "./constants";
-import { InputHandler } from "./inputHandler";
+import { PlayerRenderer } from "./clientPlayer.js";
+import { DIRECTION, PERFECT_SCALING_RATIO } from "./constants.js";
+import { InputHandler } from "./inputHandler.js";
 
 const GAMESTATE = {
     PAUSED: 0,
@@ -59,7 +59,7 @@ export class Game{
         this.state = gameState;
         this.camera = clientCamera;
         this.ball = clientBall;
-        this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.RIGHT, {x: 30, y: 30}, new Date(), this.assets.player, this.serverToClientCoords.bind(this))];
+        this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.LEFT, {x: 30, y: 30}, new Date(), this.assets.player, this.serverToClientCoords.bind(this))];
         this.inputHandler = new InputHandler(5);
 
         this.stopUpdating = false;
@@ -243,12 +243,10 @@ export class Game{
         document.addEventListener("keydown", e => {
             
             this.inputHandler.onKeyDown(e);
-            //todo grab inputHandler.getKeyData();
             // console.table(this.inputHandler.getKeyData())
         });
         document.addEventListener("keyup", e => {
             this.inputHandler.onKeyUp(e);
-            //todo grab inputHandler.getKeyData();
             // console.table(this.inputHandler.getKeyData())
 
         });

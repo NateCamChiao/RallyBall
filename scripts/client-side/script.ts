@@ -1,4 +1,4 @@
-import { Game } from "./game";
+import { Game } from "./game.js";
 
 
 let canvas: HTMLCanvasElement = document.querySelector("#game-canvas") || new HTMLCanvasElement;
