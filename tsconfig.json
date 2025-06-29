@@ -11,8 +11,9 @@
         // "verbatimModuleSyntax": true,
         "strict": true,
         "lib": ["es2022", "dom", "dom.iterable"],
-        "module": "NodeNext",
-        "outDir": "ts-build"
+        "module": "ES6",
+        "outDir": "ts-build",
+        // "allowImportingTsExtensions": true,
     },
     "include": [
         "scripts/**/*"
