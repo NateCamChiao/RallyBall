@@ -1,11 +1,8 @@
-import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION } from "./constants";
+import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStates, POSITION_FUNCTIONS } from "./constants.js";
 
-interface Coordinates{
-    x: number,
-    y: number
-}
 
-type CoordConversionFun = (x: number, y: number) => Coordinates;
+
+type CoordConversionFn = (x: number, y: number) => Coordinates;
 class RenderState{
     mapRow: number;
     freezeFrame: number;
@@ -13,15 +10,23 @@ class RenderState{
     maxFrames: number;
     initialPosition: Coordinates;
     startDate: number;
-    serverToClientCoords: CoordConversionFun;
-    constructor(spriteMapRow: number, framesPerSecond: number, animationFrameLength: number, initialPosition: Coordinates, coordConversion: CoordConversionFun, freezeFrame = 0, startDate = Date.now()){
+    serverToClientCoords: CoordConversionFn;
+    playerState: PlayerStates;
+    constructor(spriteMapRow: number, 
+        framesPerSecond: number, 
+        animationFrameLength: number, 
+        initialPosition: Coordinates, 
+        coordConversion: CoordConversionFn, 
+        freezeFrame = 0, 
+        startDate = Date.now(),
+        playerState = PlayerStates.Idle){
         this.mapRow = spriteMapRow;
         this.freezeFrame = freezeFrame;
         this.fps = 1000 / framesPerSecond; //frame length
         this.maxFrames = animationFrameLength; // inclusive
         this.initialPosition = initialPosition;
         this.startDate = startDate;
-
+        this.playerState = playerState;
         //method
         this.serverToClientCoords = coordConversion;
     }
@@ -34,7 +39,7 @@ class RenderState{
         return this;
     }
 
-    addCoordInfo(initialPosition: Coordinates, coordConversion: CoordConversionFun, startDate = Date.now()){
+    addCoordInfo(initialPosition: Coordinates, coordConversion: CoordConversionFn, startDate = Date.now()){
         this.initialPosition = initialPosition;
         this.serverToClientCoords = coordConversion;
         this.startDate = startDate;
@@ -45,7 +50,7 @@ class RenderState{
      * Alternate constructor if creating RenderState by passing in the cooresponding ANIMATION_DETAILS
      */
 
-    static createWithAnimationDetails(animationDetails: any, initialPosition: Coordinates, coordConversion: CoordConversionFun, startDate = Date.now()){
+    static createWithAnimationDetails(animationDetails: any, initialPosition: Coordinates, coordConversion: CoordConversionFn, startDate = Date.now()){
         return new RenderState(
             animationDetails.mapRow,
             animationDetails.fps,
@@ -56,12 +61,14 @@ class RenderState{
             startDate
         );
     }
-
-    calculateCoords(): Coordinates{
+    //client-side prediction
+    calculateClientCoords(direction: DIRECTION): Coordinates{
         let {x, y} = this.initialPosition;
         let timeElapsed = Date.now() - this.startDate;
         
         //todo plug into fn(initialPos, t)
+        // console.log(PHYSICS_FUNCTIONS[this.playerState](this.initialPosition, direction, timeElapsed));
+
         return this.serverToClientCoords(x, y);
     }
 
@@ -73,7 +80,7 @@ class RenderState{
             frame = this.freezeFrame;
         }
         console.log(frame, this.fps)
-        let coords = this.calculateCoords();
+        let coords = this.calculateClientCoords(direction);
         ctx.save();
         
         ctx.translate(coords.x + size / 2, coords.y + size / 2);
@@ -110,9 +117,9 @@ export class PlayerRenderer{
     initialPosition: { x: number; y: number; };
     startDate: Date;
     spriteMap: any;
-    constructor(ctx: any, dir: number, initialPosition: { x: number; y: number; }, startDate: Date, spriteMap: any, coordConvertingFunction: CoordConversionFun){
+    constructor(ctx: any, dir: number, initialPosition: { x: number; y: number; }, startDate: Date, spriteMap: any, coordConvertingFunction: CoordConversionFn){
         this.ctx = ctx;
-        this.renderState = RenderState.createWithAnimationDetails(ANIMATION_DETAILS.Falling, initialPosition, coordConvertingFunction);
+        this.renderState = RenderState.createWithAnimationDetails(ANIMATION_DETAILS.Idle, initialPosition, coordConvertingFunction);
         this.dir = dir;
         this.initialPosition = initialPosition;
         this.startDate = startDate;

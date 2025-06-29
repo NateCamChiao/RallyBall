@@ -1,35 +1,71 @@
-export const PHYSICS_FUNCTIONS = {
-	Idle: function(x: any, y: any, t: any) {
-		return {x: x, y: y}
+
+export interface Coordinates{
+	x: number,
+    y: number
+}
+
+export enum PlayerStates {
+	Idle = "Idle",
+	Running = "Running",
+	Passing = "Passing", 
+	Jumping = "Jumping",
+	Setting = "Setting",
+	Spiking = "Spiking",
+	Blocking = "Blocking",
+	Stepback = "Stepback",
+	Falling = "Falling",
+	Diving = "Diving",
+	JumpServeTossing = "JumpServeTossing",
+}
+
+export const POSITION_FUNCTIONS = {
+	Idle: function(coords: Coordinates, dir: DIRECTION, t: any) : Coordinates {
+		return {x: coords.x, y: coords.y};
 	},
-	Running: function(x: any, y: any, t: any){
-		return {
-			x:0,
-			y:0
-		}
+	Running: function(coords: Coordinates, dir: DIRECTION, t: any): Coordinates {
+		return {x: coords.x, y: coords.y};
 	},
-	Jumping: function(x: any, y: any, t: any){
-		return {
-			x:0,
-			y:0
-		}
+	Jumping: function(coords: Coordinates, dir: DIRECTION, t: any): Coordinates {
+		return {x: coords.x, y: coords.y};
 	},
-	Spiking: function(x: any, y: any, t: any){
-		return {
-			x:0,
-			y:0
-		}
+	Spiking: function(coords: Coordinates, dir: DIRECTION, t: any): Coordinates {
+		return {x: coords.x, y: coords.y};
 	},
-	Passing: function(x: any, y: any, t: any){
-		return {
-			x:0,
-			y:0
-		}
+	Passing: function(coords: Coordinates, dir: DIRECTION, t: any): Coordinates {
+		return {x: coords.x, y: coords.y};
+	},
+	Setting: function(coords: Coordinates, dir: DIRECTION, t:any): Coordinates{
+		return {x: coords.x, y: coords.y};
+	},
+	Blocking: function(coords: Coordinates, dir: DIRECTION, t:any): Coordinates{
+		return {x: coords.x, y: coords.y};
+	},
+	Stepback: function(coords: Coordinates, dir: DIRECTION, t:any): Coordinates{
+		return {x: coords.x, y: coords.y};
+	},
+	Falling: function(coords: Coordinates, dir: DIRECTION, t:any): Coordinates{
+		return {x: coords.x, y: coords.y};
+	},
+	Diving: function(coords: Coordinates, dir: DIRECTION, t:any): Coordinates{
+		return {x: coords.x, y: coords.y};
+	},
+	JumpServeTossing: function(coords: Coordinates, dir: DIRECTION, t:any): Coordinates{
+		return {x: coords.x, y: coords.y};
+	},
+	Ball: function(coords: Coordinates, velocity: {vx: number, vy: number}, t:any): Coordinates{
+		return {x: coords.x, y: coords.y};
+	},
+}
+
+export const calculateGravity = (yInitial: number, gravity: number, time: number): Coordinates => {
+	return {
+		x: 0,
+		y: 0
 	}
 }
 
 export const ANIMATION_DETAILS = {
-    Idle: {
+	Idle: {
 		maxFrame: 4,
 		mapRow: 1,
         fps:10
@@ -87,16 +123,18 @@ export const ANIMATION_DETAILS = {
 	},
 }
 
+
+
 export const PERFECT_SCALING_RATIO = 1.8;
 
 export const PLAYER_FRAME_WIDTH = 100;// width on sprite map
 export const PLAYER_ANIMATION = {
-    FRAME_WIDTH: 100,
+	FRAME_WIDTH: 100, //width of player in assets
     WIDTH: 0,
     HEIGHT: 0
 }
 
 export enum DIRECTION {
-    LEFT = 0,
+	LEFT = 0,
     RIGHT = 1
 }
