@@ -18,7 +18,11 @@ export enum PlayerStates {
 	JumpServeTossing = "JumpServeTossing",
 }
 
-export const POSITION_FUNCTIONS = {
+export type PositionFunctions = {
+	[key: string]: (coords: Coordinates, dir: DIRECTION, t:any) => Coordinates
+}
+
+export const POSITION_FUNCTIONS: PositionFunctions = {
 	Idle: function(coords: Coordinates, dir: DIRECTION, t: any) : Coordinates {
 		return {x: coords.x, y: coords.y};
 	},
@@ -52,10 +56,15 @@ export const POSITION_FUNCTIONS = {
 	JumpServeTossing: function(coords: Coordinates, dir: DIRECTION, t:any): Coordinates{
 		return {x: coords.x, y: coords.y};
 	},
-	Ball: function(coords: Coordinates, velocity: {vx: number, vy: number}, t:any): Coordinates{
+	
+}
+/*
+todo delete this
+ball positioning for later
+Ball: function(coords: Coordinates, velocity: {vx: number, vy: number}, t:any): Coordinates{
 		return {x: coords.x, y: coords.y};
 	},
-}
+*/
 
 export const calculateGravity = (yInitial: number, gravity: number, time: number): Coordinates => {
 	return {
@@ -64,7 +73,17 @@ export const calculateGravity = (yInitial: number, gravity: number, time: number
 	}
 }
 
-export const ANIMATION_DETAILS = {
+export type AnimationDetails = {
+	[key: string]: {
+		maxFrame: number,
+		mapRow: number,
+		fps: number,
+		freezeFrame?: number
+	}
+}
+
+
+export const ANIMATION_DETAILS: AnimationDetails = {
 	Idle: {
 		maxFrame: 4,
 		mapRow: 1,
@@ -122,51 +141,56 @@ export const ANIMATION_DETAILS = {
         fps:0
 	},
 }
-
-export const CLIENT_RENDERING = {
+export type ClientRenderData = {
+	[key: string]: {
+		animation: AnimationDetails[typeof key],
+		position: any
+	}
+}
+export const CLIENT_RENDERING: ClientRenderData = {
 	Idle:{
-		Animation: ANIMATION_DETAILS.Idle,
-		Position: POSITION_FUNCTIONS.Idle
+		animation: ANIMATION_DETAILS.Idle,
+		position: POSITION_FUNCTIONS.Idle
 	},
 	Running:{
-		Animation: ANIMATION_DETAILS.Running,
-		Position: POSITION_FUNCTIONS.Running
+		animation: ANIMATION_DETAILS.Running,
+		position: POSITION_FUNCTIONS.Running
 	},
 	Passing:{
-		Animation: ANIMATION_DETAILS.Passing,
-		Position: POSITION_FUNCTIONS.Passing
+		animation: ANIMATION_DETAILS.Passing,
+		position: POSITION_FUNCTIONS.Passing
 	},
 	Jumping:{
-		Animation: ANIMATION_DETAILS.Jumping,
-		Position: POSITION_FUNCTIONS.Jumping
+		animation: ANIMATION_DETAILS.Jumping,
+		position: POSITION_FUNCTIONS.Jumping
 	},
 	Setting:{
-		Animation: ANIMATION_DETAILS.Setting,
-		Position: POSITION_FUNCTIONS.Setting
+		animation: ANIMATION_DETAILS.Setting,
+		position: POSITION_FUNCTIONS.Setting
 	},
 	Spiking:{
-		Animation: ANIMATION_DETAILS.Spiking,
-		Position: POSITION_FUNCTIONS.Spiking
+		animation: ANIMATION_DETAILS.Spiking,
+		position: POSITION_FUNCTIONS.Spiking
 	},
 	Blocking:{
-		Animation: ANIMATION_DETAILS.Blocking,
-		Position: POSITION_FUNCTIONS.Blocking
+		animation: ANIMATION_DETAILS.Blocking,
+		position: POSITION_FUNCTIONS.Blocking
 	},
 	Stepback:{
-		Animation: ANIMATION_DETAILS.Stepback,
-		Position: POSITION_FUNCTIONS.Stepback
+		animation: ANIMATION_DETAILS.Stepback,
+		position: POSITION_FUNCTIONS.Stepback
 	},
 	Falling:{
-		Animation: ANIMATION_DETAILS.Falling,
-		Position: POSITION_FUNCTIONS.Falling
+		animation: ANIMATION_DETAILS.Falling,
+		position: POSITION_FUNCTIONS.Falling
 	},
 	Diving:{
-		Animation: ANIMATION_DETAILS.Diving,
-		Position: POSITION_FUNCTIONS.Diving
+		animation: ANIMATION_DETAILS.Diving,
+		position: POSITION_FUNCTIONS.Diving
 	},
 	JumpServeTossing:{
-		Animation: ANIMATION_DETAILS.JumpServeTossing,
-		Position: POSITION_FUNCTIONS.JumpServeTossing
+		animation: ANIMATION_DETAILS.JumpServeTossing,
+		position: POSITION_FUNCTIONS.JumpServeTossing
 	},
 }
 
