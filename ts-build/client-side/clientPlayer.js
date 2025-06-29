@@ -1,65 +1,44 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PlayerRenderer = void 0;
-const constants_1 = require("./constants");
+import { DIRECTION, PLAYER_ANIMATION, PlayerStates, CLIENT_RENDERING } from "./constants.js";
 class RenderState {
-    mapRow;
-    freezeFrame;
-    fps;
-    maxFrames;
     initialPosition;
     startDate;
     serverToClientCoords;
-    constructor(spriteMapRow, framesPerSecond, animationFrameLength, initialPosition, coordConversion, freezeFrame = 0, startDate = Date.now()) {
-        this.mapRow = spriteMapRow;
-        this.freezeFrame = freezeFrame;
-        this.fps = 1000 / framesPerSecond; //frame length
-        this.maxFrames = animationFrameLength; // inclusive
-        this.initialPosition = initialPosition;
-        this.startDate = startDate;
-        //method
+    playerState;
+    renderData;
+    constructor(renderData, initalPosition, coordConversion, playerState = PlayerStates.Idle, startDate = Date.now()) {
+        this.renderData = renderData;
+        this.initialPosition = initalPosition;
         this.serverToClientCoords = coordConversion;
-    }
-    addAnimationInfo(spriteMapRow, framesPerSecond, animationFrameLength, freezeFrame = 0) {
-        this.mapRow = spriteMapRow;
-        this.fps = framesPerSecond;
-        this.maxFrames = animationFrameLength;
-        this.freezeFrame = freezeFrame;
-        return this;
-    }
-    addCoordInfo(initialPosition, coordConversion, startDate = Date.now()) {
-        this.initialPosition = initialPosition;
-        this.serverToClientCoords = coordConversion;
+        this.playerState = playerState;
         this.startDate = startDate;
-        return this;
     }
-    /**
-     * Alternate constructor if creating RenderState by passing in the cooresponding ANIMATION_DETAILS
-     */
-    static createWithAnimationDetails(animationDetails, initialPosition, coordConversion, startDate = Date.now()) {
-        return new RenderState(animationDetails.mapRow, animationDetails.fps, animationDetails.maxFrame, initialPosition, coordConversion, animationDetails.freezeFrame ?? 0, startDate);
-    }
-    calculateCoords() {
+    //client-side prediction
+    calculateClientCoords(direction) {
         let { x, y } = this.initialPosition;
         let timeElapsed = Date.now() - this.startDate;
         //todo plug into fn(initialPos, t)
+        // console.log(PHYSICS_FUNCTIONS[this.playerState](this.initialPosition, direction, timeElapsed));
         return this.serverToClientCoords(x, y);
     }
     render(ctx, deltatime, direction, size, spriteMap) {
+        let { maxFrame, mapRow, fps, freezeFrame } = this.renderData[this.playerState].animation;
+        //converts to frame length
+        let frameLength = 1000 / fps;
         let animationLength = Date.now() - this.startDate;
-        let frame = Math.floor(animationLength / this.fps) % (this.maxFrames); // * (delta time) /  mod (maxFrames * )
+        let frame = Math.floor(animationLength / frameLength) % (maxFrame); // * (delta time) /  mod (maxFrames * )
         // If can't divide by fps then use freezeFrame
-        if (this.fps == Infinity || this.fps == 0) {
-            frame = this.freezeFrame;
+        if (frameLength == Infinity || frameLength == 0) {
+            //zero if freezeFrame isn't available
+            frame = freezeFrame ?? 0;
         }
-        console.log(frame, this.fps);
-        let coords = this.calculateCoords();
+        console.log(frame, frameLength);
+        let coords = this.calculateClientCoords(direction);
         ctx.save();
         ctx.translate(coords.x + size / 2, coords.y + size / 2);
-        if (direction == constants_1.DIRECTION.LEFT) {
+        if (direction == DIRECTION.LEFT) {
             ctx.scale(-1, 1);
         }
-        ctx.drawImage(spriteMap, frame * constants_1.PLAYER_ANIMATION.FRAME_WIDTH, this.mapRow * constants_1.PLAYER_ANIMATION.FRAME_WIDTH, constants_1.PLAYER_ANIMATION.FRAME_WIDTH, constants_1.PLAYER_ANIMATION.FRAME_WIDTH, -size / 2, -size / 2, size, size);
+        ctx.drawImage(spriteMap, frame * PLAYER_ANIMATION.FRAME_WIDTH, mapRow * PLAYER_ANIMATION.FRAME_WIDTH, PLAYER_ANIMATION.FRAME_WIDTH, PLAYER_ANIMATION.FRAME_WIDTH, -size / 2, -size / 2, size, size);
         ctx.restore();
     }
 }
@@ -70,7 +49,7 @@ class IdleAnimation extends RenderState {
 }
 class RunningAnimation extends RenderState {
 }
-class PlayerRenderer {
+export class PlayerRenderer {
     ctx;
     renderState;
     dir;
@@ -79,7 +58,7 @@ class PlayerRenderer {
     spriteMap;
     constructor(ctx, dir, initialPosition, startDate, spriteMap, coordConvertingFunction) {
         this.ctx = ctx;
-        this.renderState = RenderState.createWithAnimationDetails(constants_1.ANIMATION_DETAILS.Falling, initialPosition, coordConvertingFunction);
+        this.renderState = new RenderState(CLIENT_RENDERING, initialPosition, coordConvertingFunction, PlayerStates.Idle);
         this.dir = dir;
         this.initialPosition = initialPosition;
         this.startDate = startDate;
@@ -90,7 +69,6 @@ class PlayerRenderer {
         this.renderState.render(ctx, deltatime, this.dir, size, this.spriteMap);
     }
 }
-exports.PlayerRenderer = PlayerRenderer;
 class BallRenderer {
     initialPos;
     init_H;

@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 class Ball {
 }
 const GAMESTATES = {
@@ -51,3 +49,4 @@ class GameHandler {
 }
 const gameHandler = new GameHandler();
 gameHandler.createGame(new ServerPlayer());
+export {};

@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 class PlayerState {
     constructor(player) {
         this.player;
@@ -39,6 +37,7 @@ class BlockingState extends PlayerState {
 class DivingState extends PlayerState {
     constructor(player) { }
 }
+export {};
 /*
 * Future work
 class TippingState extends PlayerState{

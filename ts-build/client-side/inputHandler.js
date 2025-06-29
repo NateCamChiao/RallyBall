@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.InputHandler = void 0;
 class InputHandler {
     keysDown;
     keysUp;
@@ -29,4 +26,4 @@ class InputHandler {
         };
     }
 }
-exports.InputHandler = InputHandler;
+export { InputHandler };

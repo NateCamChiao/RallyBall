@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const game_1 = require("./game");
+import { Game } from "./game.js";
 let canvas = document.querySelector("#game-canvas") || new HTMLCanvasElement;
 // let ctx = canvas.getContext("2d");
 canvas.width = innerWidth;
@@ -33,7 +31,7 @@ async function loadAssets() {
 }
 loadAssets();
 function createClientGame() {
-    game = new game_1.Game(canvas, playerAssets, sceneAssets);
+    game = new Game(canvas, playerAssets, sceneAssets);
 }
 // createClientGame();
 window.addEventListener("resize", (e) => {

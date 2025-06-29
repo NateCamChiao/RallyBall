@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Game = void 0;
-const clientPlayer_1 = require("./clientPlayer");
-const constants_1 = require("./constants");
-const inputHandler_1 = require("./inputHandler");
+import { PlayerRenderer } from "./clientPlayer.js";
+import { DIRECTION, PERFECT_SCALING_RATIO, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
+import { InputHandler } from "./inputHandler.js";
 const GAMESTATE = {
     PAUSED: 0,
     UNPAUSED: 1,
@@ -27,7 +24,7 @@ let clientBall = {
     y: 0,
     r: 40,
 };
-class Game {
+export class Game {
     canvas;
     ctx;
     assets;
@@ -55,8 +52,8 @@ class Game {
         this.state = gameState;
         this.camera = clientCamera;
         this.ball = clientBall;
-        this.playerList = [new clientPlayer_1.PlayerRenderer(this.ctx, constants_1.DIRECTION.RIGHT, { x: 30, y: 30 }, new Date(), this.assets.player, this.serverToClientCoords.bind(this))];
-        this.inputHandler = new inputHandler_1.InputHandler(5);
+        this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.LEFT, { x: 30, y: 30 }, new Date(), this.assets.player, this.serverToClientCoords.bind(this))];
+        this.inputHandler = new InputHandler(5);
         this.stopUpdating = false;
         this.lastTimeStamp = -1;
         this.setUpKeyListeners();
@@ -76,21 +73,21 @@ class Game {
     }
     onServerData() { }
     findScalingUnit(canvas) {
-        if (canvas.height * constants_1.PERFECT_SCALING_RATIO >= canvas.width) {
+        if (canvas.height * PERFECT_SCALING_RATIO >= canvas.width) {
             this.scalingUnit = canvas.width;
             this.scalingWidthOffset = 0;
-            this.heightOffset = canvas.height - canvas.width / constants_1.PERFECT_SCALING_RATIO;
+            this.heightOffset = canvas.height - canvas.width / PERFECT_SCALING_RATIO;
             // console.log(canvas.width / PERFECT_SCALING_RATIO, canvas.height);
             // heightOffset =
         }
-        else if (canvas.height * constants_1.PERFECT_SCALING_RATIO < canvas.width) {
-            this.scalingUnit = canvas.height * constants_1.PERFECT_SCALING_RATIO; //0.71 finds target width 1.8 is much closer
+        else if (canvas.height * PERFECT_SCALING_RATIO < canvas.width) {
+            this.scalingUnit = canvas.height * PERFECT_SCALING_RATIO; //0.71 finds target width 1.8 is much closer
             this.scalingWidthOffset = (canvas.width - this.scalingUnit) / 2; //half of the target width difference
             this.heightOffset = 0;
         }
     }
     renderPlayers(deltatime) {
-        this.playerList.forEach(player => player.render(this.ctx, deltatime, this.scalingUnit * 0.17));
+        this.playerList.forEach(player => player.render(this.ctx, deltatime, this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE));
     }
     serverToClientCoords(x, y) {
         return {
@@ -186,14 +183,11 @@ class Game {
     setUpKeyListeners() {
         document.addEventListener("keydown", e => {
             this.inputHandler.onKeyDown(e);
-            //todo grab inputHandler.getKeyData();
             // console.table(this.inputHandler.getKeyData())
         });
         document.addEventListener("keyup", e => {
             this.inputHandler.onKeyUp(e);
-            //todo grab inputHandler.getKeyData();
             // console.table(this.inputHandler.getKeyData())
         });
     }
 }
-exports.Game = Game;
