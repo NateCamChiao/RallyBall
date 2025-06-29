@@ -123,7 +123,52 @@ export const ANIMATION_DETAILS = {
 	},
 }
 
-
+export const CLIENT_RENDERING = {
+	Idle:{
+		Animation: ANIMATION_DETAILS.Idle,
+		Position: POSITION_FUNCTIONS.Idle
+	},
+	Running:{
+		Animation: ANIMATION_DETAILS.Running,
+		Position: POSITION_FUNCTIONS.Running
+	},
+	Passing:{
+		Animation: ANIMATION_DETAILS.Passing,
+		Position: POSITION_FUNCTIONS.Passing
+	},
+	Jumping:{
+		Animation: ANIMATION_DETAILS.Jumping,
+		Position: POSITION_FUNCTIONS.Jumping
+	},
+	Setting:{
+		Animation: ANIMATION_DETAILS.Setting,
+		Position: POSITION_FUNCTIONS.Setting
+	},
+	Spiking:{
+		Animation: ANIMATION_DETAILS.Spiking,
+		Position: POSITION_FUNCTIONS.Spiking
+	},
+	Blocking:{
+		Animation: ANIMATION_DETAILS.Blocking,
+		Position: POSITION_FUNCTIONS.Blocking
+	},
+	Stepback:{
+		Animation: ANIMATION_DETAILS.Stepback,
+		Position: POSITION_FUNCTIONS.Stepback
+	},
+	Falling:{
+		Animation: ANIMATION_DETAILS.Falling,
+		Position: POSITION_FUNCTIONS.Falling
+	},
+	Diving:{
+		Animation: ANIMATION_DETAILS.Diving,
+		Position: POSITION_FUNCTIONS.Diving
+	},
+	JumpServeTossing:{
+		Animation: ANIMATION_DETAILS.JumpServeTossing,
+		Position: POSITION_FUNCTIONS.JumpServeTossing
+	},
+}
 
 export const PERFECT_SCALING_RATIO = 1.8;
 
