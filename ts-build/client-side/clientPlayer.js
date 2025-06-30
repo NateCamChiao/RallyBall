@@ -43,8 +43,6 @@ class RenderState {
         if (direction == DIRECTION.LEFT) {
             ctx.scale(-1, 1);
         }
-        ctx.fillRect(0, 0, 100, 100);
-        ctx.drawImage(spriteMap, 50, 50, PLAYER_ANIMATION.FRAME_WIDTH, PLAYER_ANIMATION.FRAME_WIDTH, 40, 40, 300, 300);
         ctx.drawImage(spriteMap, frame * PLAYER_ANIMATION.FRAME_WIDTH, mapRow * PLAYER_ANIMATION.FRAME_WIDTH, PLAYER_ANIMATION.FRAME_WIDTH, PLAYER_ANIMATION.FRAME_WIDTH, -this.playerSize / 2, -this.playerSize / 2, this.playerSize, this.playerSize);
         ctx.restore();
     }
