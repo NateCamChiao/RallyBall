@@ -1,6 +1,7 @@
 import { PlayerRenderer } from "./clientPlayer.js";
 import { DIRECTION, PERFECT_SCALING_RATIO, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
 import { InputHandler } from "./inputHandler.js";
+import { FakeServerHandler } from "./connections.js";
 const GAMESTATE = {
     PAUSED: 0,
     UNPAUSED: 1,
@@ -25,20 +26,23 @@ let clientBall = {
     r: 40,
 };
 export class Game {
+    //rendering members
     canvas;
     ctx;
     assets;
     scalingUnit;
     heightOffset;
     scalingWidthOffset;
+    //game state members
     state;
     camera;
     ball;
     playerList;
     inputHandler;
+    connectionHandler;
     stopUpdating;
     lastTimeStamp;
-    constructor(canvas, playerAssests, sceneAssests, gameState = GAMESTATE.UNPAUSED) {
+    constructor(canvas, playerAssests, sceneAssests, connectionHandler = new FakeServerHandler(), gameState = GAMESTATE.UNPAUSED) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d") ?? new CanvasRenderingContext2D;
         this.assets = {
@@ -52,8 +56,9 @@ export class Game {
         this.state = gameState;
         this.camera = clientCamera;
         this.ball = clientBall;
-        this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.LEFT, { x: 30, y: 30 }, new Date(), this.assets.player, this.serverToClientCoords.bind(this))];
+        this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.LEFT, { x: 30, y: 63 }, new Date(), this.assets.player, this.serverToClientCoords.bind(this))];
         this.inputHandler = new InputHandler(5);
+        this.connectionHandler = connectionHandler;
         this.stopUpdating = false;
         this.lastTimeStamp = -1;
         this.setUpKeyListeners();
