@@ -45,7 +45,7 @@ class RenderState{
             //zero if freezeFrame isn't available
             frame = freezeFrame ?? 0;
         }
-        console.log(frame, frameLength)
+       // console.log(frame, frameLength)
         let coords = this.calculateClientCoords(direction);
         ctx.save();
         
@@ -68,14 +68,7 @@ class RenderState{
         ctx.restore();
     }
 }
-/**
- * IdleAnimation is here to avoid confusion. It inherits everything it needs from RenderState
- */
-class IdleAnimation extends RenderState{}
 
-class RunningAnimation extends RenderState{
-
-}
 //
 export class PlayerRenderer{
     ctx: any;
@@ -93,7 +86,7 @@ export class PlayerRenderer{
         playerSize: number
     ){
         this.ctx = ctx;
-        this.renderState = new RenderState(CLIENT_RENDERING, initialPosition, coordConvertingFunction, playerSize, PlayerStates.Idle);
+        this.renderState = new RenderState(CLIENT_RENDERING, initialPosition, coordConvertingFunction, playerSize, PlayerStates.Diving);
         this.dir = dir;
         this.startDate = startDate;
         this.spriteMap = spriteMap;
