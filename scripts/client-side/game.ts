@@ -59,7 +59,7 @@ export class Game{
         this.state = gameState;
         this.camera = clientCamera;
         this.ball = clientBall;
-        this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.LEFT, {x: 30, y: 30}, new Date(), this.assets.player, this.serverToClientCoords.bind(this))];
+        this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.LEFT, {x: 30, y: 63}, new Date(), this.assets.player, this.serverToClientCoords.bind(this))];
         this.inputHandler = new InputHandler(5);
 
         this.stopUpdating = false;
