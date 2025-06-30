@@ -1,16 +1,21 @@
-import { DIRECTION, PLAYER_ANIMATION, PlayerStates, CLIENT_RENDERING } from "./constants.js";
+import { DIRECTION, PLAYER_ANIMATION, PlayerStates, CLIENT_RENDERING, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
 class RenderState {
+    playerSize;
     initialPosition;
     startDate;
     serverToClientCoords;
     playerState;
     renderData;
-    constructor(renderData, initalPosition, coordConversion, playerState = PlayerStates.Idle, startDate = Date.now()) {
+    constructor(renderData, initalPosition, coordConversion, playerSize = 100, playerState = PlayerStates.Idle, startDate = Date.now()) {
         this.renderData = renderData;
         this.initialPosition = initalPosition;
         this.serverToClientCoords = coordConversion;
         this.playerState = playerState;
         this.startDate = startDate;
+        this.playerSize = playerSize;
+    }
+    updatePlayerSize(newSize) {
+        this.playerSize = newSize;
     }
     //client-side prediction
     calculateClientCoords(direction) {
@@ -20,7 +25,7 @@ class RenderState {
         // console.log(PHYSICS_FUNCTIONS[this.playerState](this.initialPosition, direction, timeElapsed));
         return this.serverToClientCoords(x, y);
     }
-    render(ctx, deltatime, direction, size, spriteMap) {
+    render(ctx, deltatime, direction, spriteMap) {
         let { maxFrame, mapRow, fps, freezeFrame } = this.renderData[this.playerState].animation;
         //converts to frame length
         let frameLength = 1000 / fps;
@@ -34,11 +39,13 @@ class RenderState {
         console.log(frame, frameLength);
         let coords = this.calculateClientCoords(direction);
         ctx.save();
-        ctx.translate(coords.x + size / 2, coords.y + size / 2);
+        ctx.translate(coords.x + this.playerSize / 2, coords.y + this.playerSize / 2);
         if (direction == DIRECTION.LEFT) {
             ctx.scale(-1, 1);
         }
-        ctx.drawImage(spriteMap, frame * PLAYER_ANIMATION.FRAME_WIDTH, mapRow * PLAYER_ANIMATION.FRAME_WIDTH, PLAYER_ANIMATION.FRAME_WIDTH, PLAYER_ANIMATION.FRAME_WIDTH, -size / 2, -size / 2, size, size);
+        ctx.fillRect(0, 0, 100, 100);
+        ctx.drawImage(spriteMap, 50, 50, PLAYER_ANIMATION.FRAME_WIDTH, PLAYER_ANIMATION.FRAME_WIDTH, 40, 40, 300, 300);
+        ctx.drawImage(spriteMap, frame * PLAYER_ANIMATION.FRAME_WIDTH, mapRow * PLAYER_ANIMATION.FRAME_WIDTH, PLAYER_ANIMATION.FRAME_WIDTH, PLAYER_ANIMATION.FRAME_WIDTH, -this.playerSize / 2, -this.playerSize / 2, this.playerSize, this.playerSize);
         ctx.restore();
     }
 }
@@ -49,24 +56,25 @@ class IdleAnimation extends RenderState {
 }
 class RunningAnimation extends RenderState {
 }
+//
 export class PlayerRenderer {
     ctx;
     renderState;
     dir;
-    initialPosition;
     startDate;
     spriteMap;
-    constructor(ctx, dir, initialPosition, startDate, spriteMap, coordConvertingFunction) {
+    constructor(ctx, dir, initialPosition, startDate, spriteMap, coordConvertingFunction, playerSize) {
         this.ctx = ctx;
-        this.renderState = new RenderState(CLIENT_RENDERING, initialPosition, coordConvertingFunction, PlayerStates.Idle);
+        this.renderState = new RenderState(CLIENT_RENDERING, initialPosition, coordConvertingFunction, playerSize, PlayerStates.Idle);
         this.dir = dir;
-        this.initialPosition = initialPosition;
         this.startDate = startDate;
         this.spriteMap = spriteMap;
-        // this.coordConvertFun = coordConvertingFunction;
     }
-    render(ctx, deltatime, size) {
-        this.renderState.render(ctx, deltatime, this.dir, size, this.spriteMap);
+    updateScalingUnit(scalingunit) {
+        this.renderState.updatePlayerSize(scalingunit * SCALING_UNIT_TO_PLAYER_SIZE);
+    }
+    render(ctx, deltatime) {
+        this.renderState.render(ctx, deltatime, this.dir, this.spriteMap);
     }
 }
 class BallRenderer {

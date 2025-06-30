@@ -64,7 +64,7 @@ export class Game{
         this.state = gameState;
         this.camera = clientCamera;
         this.ball = clientBall;
-        this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.LEFT, {x: 30, y: 63}, new Date(), this.assets.player, this.serverToClientCoords.bind(this))];
+        this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.LEFT, {x: 30, y: 63}, new Date(), this.assets.player, this.serverToClientCoords.bind(this), scalingRatio * SCALING_UNIT_TO_PLAYER_SIZE)];
         this.inputHandler = new InputHandler(5);
         this.connectionHandler = connectionHandler;
 
@@ -104,7 +104,7 @@ export class Game{
     }
 
     renderPlayers(deltatime: number){
-        this.playerList.forEach(player => player.render(this.ctx, deltatime, this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE));
+        this.playerList.forEach(player => player.render(this.ctx, deltatime));
     }
 
     serverToClientCoords(x: number, y: number){
