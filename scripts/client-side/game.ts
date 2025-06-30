@@ -3,6 +3,7 @@ import { DIRECTION, PERFECT_SCALING_RATIO, SCALING_UNIT_TO_PLAYER_SIZE } from ".
 import { InputHandler } from "./inputHandler.js";
 import { ConnectionHandler, RealServerHandler, FakeServerHandler } from "./connections.js";
 
+
 const GAMESTATE = {
     PAUSED: 0,
     UNPAUSED: 1,
@@ -64,7 +65,7 @@ export class Game{
         this.state = gameState;
         this.camera = clientCamera;
         this.ball = clientBall;
-        this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.LEFT, {x: 30, y: 63}, new Date(), this.assets.player, this.serverToClientCoords.bind(this), scalingRatio * SCALING_UNIT_TO_PLAYER_SIZE)];
+        this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.LEFT, {x: 30, y: 63}, new Date(), this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE)];
         this.inputHandler = new InputHandler(5);
         this.connectionHandler = connectionHandler;
 
@@ -101,6 +102,8 @@ export class Game{
             this.scalingWidthOffset = (canvas.width - this.scalingUnit) / 2; //half of the target width difference
             this.heightOffset = 0;
         }
+
+        this.playerList.forEach(playerRenderer => playerRenderer.updateScalingUnit(this.scalingUnit));
     }
 
     renderPlayers(deltatime: number){
