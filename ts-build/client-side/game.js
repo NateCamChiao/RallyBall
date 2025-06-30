@@ -76,7 +76,6 @@ export class Game {
         if (!this.stopUpdating)
             requestAnimationFrame(this.updateGame.bind(this));
     }
-    onServerData() { }
     findScalingUnit(canvas) {
         if (canvas.height * PERFECT_SCALING_RATIO >= canvas.width) {
             this.scalingUnit = canvas.width;
@@ -102,21 +101,18 @@ export class Game {
         };
     }
     drawScene(deltatime) {
-        // console.log("draw", deltatime)
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         let { cameraX, cameraY } = this.camera.currentPosition();
         this.drawBlankBackground(this.camera.y);
         this.ctx.translate(this.camera.x, this.camera.y);
         this.drawBackground();
         this.drawCourt();
-        // this.ctx.drawImage(this.assets.scene,0,0,);
         const netDims = {
             w: this.scalingUnit * 0.04,
             h: this.scalingUnit * 0.04 * 5.1,
         };
         //net
         this.ctx.drawImage(this.assets.scene, 0, 0, 181, 943, this.canvas.width / 2 - netDims.w / 2, this.canvas.height - netDims.h, netDims.w, netDims.h);
-        // this.ctx.fillRect(0,0,400,40);
         this.renderPlayers(deltatime);
         // drawClouds();
         this.ctx.translate(-this.camera.x, -this.camera.y); // restore translation
@@ -139,21 +135,20 @@ export class Game {
         this.ctx.translate(0, -offset);
     }
     drawBackground() {
-        //800
         //background
         this.ctx.fillStyle = "#d6f2f9ff";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.fillStyle = "#80e5ffff"; //water
         this.ctx.fillRect(0, this.canvas.height - this.scalingUnit * 0.24, this.canvas.width, this.scalingUnit * 0.04);
         // drawCrowd();
-        //this.ctx.fillStyle = "black";
-        //this.ctx.fillRect(0, canvas.height - canvas.width * 0.24 - 100, 400, 400);
         this.ctx.fillStyle = "#ac9393ff"; //border
         this.ctx.fillRect(-this.scalingUnit * 0.06, this.canvas.height - this.scalingUnit * 0.2, this.canvas.width + this.scalingUnit * 0.12, this.scalingUnit * 0.08);
         this.ctx.fillStyle = "#ffd42aff"; //sand
         this.ctx.fillRect(0, this.canvas.height - this.scalingUnit * 0.12, this.canvas.width, this.scalingUnit * 0.12);
     }
     drawCourt() {
+        //these are the edges of the court
+        //trust the magic
         const points = [
             {
                 x: this.scalingUnit * 0.03 + this.scalingWidthOffset,
