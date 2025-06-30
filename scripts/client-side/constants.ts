@@ -217,7 +217,8 @@ export enum GAMESTATES {
 	SERVING,
 	PLAYING,
 	PAUSED,
-	ENDED
+	ENDED,
+	SANDBOX
 }
 
 export type BallStateData = {
