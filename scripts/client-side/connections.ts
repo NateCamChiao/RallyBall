@@ -1,11 +1,11 @@
 import { GameStateData, ClientInputData } from "constants.js";
 import { Game } from "./game";
-interface ConnectionHandler{
+export interface ConnectionHandler{
     onClientData:(inputData: ClientInputData) => void;
     onServerData:(gamestateData: GameStateData) => void;
 }
 //this lives on client-size
-class FakeServerHandler implements ConnectionHandler{
+export class FakeServerHandler implements ConnectionHandler{
     onClientData(inputData: ClientInputData){
 
     }
@@ -14,11 +14,12 @@ class FakeServerHandler implements ConnectionHandler{
     }
 }
 
-class RealServerHandler implements ConnectionHandler{
+export class RealServerHandler implements ConnectionHandler{
+    //socket io stuff
     onClientData(inputData: ClientInputData){
-
+        //send data to real server
     }
     onServerData(gamestateData: GameStateData) {
-
+        // send back to client
     }
 }
