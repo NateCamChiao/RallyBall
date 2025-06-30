@@ -3,7 +3,10 @@ export interface Coordinates{
 	x: number,
     y: number
 }
-
+export interface Velocity{
+	vx: number,
+	vy: number
+}
 export enum PlayerStates {
 	Idle = "Idle",
 	Running = "Running",
@@ -207,4 +210,36 @@ export const PLAYER_ANIMATION = {
 export enum DIRECTION {
 	LEFT = 0,
     RIGHT = 1
+}
+
+export enum GAMESTATES {
+	QUEING,
+	SERVING,
+	PLAYING,
+	PAUSED,
+	ENDED
+}
+
+export type BallStateData = {
+	initialPosition: Coordinates,
+	initialVelocity: Velocity,
+	startDate: Date
+}
+
+export type PlayerStateData = {
+	dir: DIRECTION,
+	initalPosition: Coordinates,
+	startData: Date,
+	playerState: PlayerStates
+}
+
+export type GameStateData = {
+	players: PlayerStateData[],
+	gameState: GAMESTATES,
+	ball: BallStateData
+}
+export type ClientInputData = {
+	keysDown: any[],
+	keysUp: any[],
+	keysHeld: Set<string>
 }
