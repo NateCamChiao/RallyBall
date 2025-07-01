@@ -37,9 +37,9 @@ export class Game{
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
     assets: { player: CanvasImageSource; scene: CanvasImageSource; };
-    scalingUnit: number;
-    heightOffset: number;
-    scalingWidthOffset: number;
+    scalingUnit: number = 0;
+    heightOffset: number = 0;
+    scalingWidthOffset: number = 0;
     //game state members
     state: number;
     camera: { x: number; y: number; currentPosition(): { cameraX: number; cameraY: number; }; };
@@ -57,10 +57,6 @@ export class Game{
             player: playerAssests,
             scene: sceneAssests
         }
-        //defaults
-        this.scalingUnit = 0;
-        this.heightOffset = 0;
-        this.scalingWidthOffset = 0;
 
         this.state = gameState;
         this.camera = clientCamera;
