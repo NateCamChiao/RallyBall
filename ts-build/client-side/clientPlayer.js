@@ -49,23 +49,61 @@ class RenderState {
 }
 //
 export class PlayerRenderer {
-    ctx;
-    renderState;
+    //render logic members
+    // renderState: RenderState;
     dir;
     startDate;
+    initialPosition;
+    playerState;
+    serverToClientCoords;
+    //assets and drawing members
+    ctx;
     spriteMap;
-    constructor(ctx, dir, initialPosition, startDate, spriteMap, coordConvertingFunction, playerSize) {
+    renderData;
+    playerSize;
+    constructor(ctx, dir, initialPosition, startDate, spriteMap, coordConvertingFunction, playerSize, playerState = PlayerStates.Idle) {
         this.ctx = ctx;
-        this.renderState = new RenderState(CLIENT_RENDERING, initialPosition, coordConvertingFunction, playerSize, PlayerStates.Diving);
+        // this.renderState = new RenderState(CLIENT_RENDERING, initialPosition, coordConvertingFunction, playerSize, PlayerStates.Diving);
         this.dir = dir;
         this.startDate = startDate;
         this.spriteMap = spriteMap;
+        this.serverToClientCoords = coordConvertingFunction;
+        this.initialPosition = initialPosition;
+        this.renderData = CLIENT_RENDERING;
+        this.playerState = playerState;
+        this.playerSize = playerSize;
     }
     updateScalingUnit(scalingunit) {
-        this.renderState.updatePlayerSize(scalingunit * SCALING_UNIT_TO_PLAYER_SIZE);
+        this.playerSize = scalingunit * SCALING_UNIT_TO_PLAYER_SIZE;
+    }
+    calculateClientCoords(direction) {
+        let { x, y } = this.initialPosition;
+        let timeElapsed = Date.now() - this.startDate;
+        //todo plug into fn(initialPos, t)
+        // console.log(PHYSICS_FUNCTIONS[this.playerState](this.initialPosition, direction, timeElapsed));
+        return this.serverToClientCoords(x, y);
     }
     render(ctx, deltatime) {
-        this.renderState.render(ctx, deltatime, this.dir, this.spriteMap);
+        let { maxFrame, mapRow, fps, freezeFrame } = this.renderData[this.playerState].animation;
+        //converts to frame length
+        let frameLength = 1000 / fps;
+        let animationLength = Date.now() - this.startDate;
+        let frame = Math.floor(animationLength / frameLength) % (maxFrame); // * (delta time) /  mod (maxFrames * )
+        // If can't divide by fps then use freezeFrame
+        if (frameLength == Infinity || frameLength == 0) {
+            //zero if freezeFrame isn't available
+            frame = freezeFrame ?? 0;
+        }
+        // console.log(frame, frameLength)
+        let coords = this.calculateClientCoords(this.dir);
+        ctx.save();
+        let playerSize;
+        ctx.translate(coords.x + this.playerSize / 2, coords.y + this.playerSize / 2);
+        if (this.dir == DIRECTION.LEFT) {
+            ctx.scale(-1, 1);
+        }
+        ctx.drawImage(this.spriteMap, frame * PLAYER_ANIMATION.FRAME_WIDTH, mapRow * PLAYER_ANIMATION.FRAME_WIDTH, PLAYER_ANIMATION.FRAME_WIDTH, PLAYER_ANIMATION.FRAME_WIDTH, -this.playerSize / 2, -this.playerSize / 2, this.playerSize, this.playerSize);
+        ctx.restore();
     }
 }
 class BallRenderer {
