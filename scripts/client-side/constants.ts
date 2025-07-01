@@ -5,7 +5,7 @@ export interface Coordinates{
 }
 export interface Velocity{
 	vx: number,
-	vy: number
+	vy: number	
 }
 export enum PlayerStates {
 	Idle = "Idle",
@@ -19,47 +19,6 @@ export enum PlayerStates {
 	Falling = "Falling",
 	Diving = "Diving",
 	JumpServeTossing = "JumpServeTossing",
-}
-
-export type PositionFunctions = {
-	[key: string]: (coords: Coordinates, dir: DIRECTION, t:any) => Coordinates;
-}
-
-export const POSITION_FUNCTIONS: PositionFunctions = {
-	Idle: function(coords: Coordinates, dir: DIRECTION, t: any) : Coordinates {
-		return {x: coords.x, y: coords.y};
-	},
-	Running: function(coords: Coordinates, dir: DIRECTION, t: any): Coordinates {
-		return {x: coords.x, y: coords.y};
-	},
-	Jumping: function(coords: Coordinates, dir: DIRECTION, t: any): Coordinates {
-		return {x: coords.x, y: coords.y};
-	},
-	Spiking: function(coords: Coordinates, dir: DIRECTION, t: any): Coordinates {
-		return {x: coords.x, y: coords.y};
-	},
-	Passing: function(coords: Coordinates, dir: DIRECTION, t: any): Coordinates {
-		return {x: coords.x, y: coords.y};
-	},
-	Setting: function(coords: Coordinates, dir: DIRECTION, t:any): Coordinates{
-		return {x: coords.x, y: coords.y};
-	},
-	Blocking: function(coords: Coordinates, dir: DIRECTION, t:any): Coordinates{
-		return {x: coords.x, y: coords.y};
-	},
-	Stepback: function(coords: Coordinates, dir: DIRECTION, t:any): Coordinates{
-		return {x: coords.x, y: coords.y};
-	},
-	Falling: function(coords: Coordinates, dir: DIRECTION, t:any): Coordinates{
-		return {x: coords.x, y: coords.y};
-	},
-	Diving: function(coords: Coordinates, dir: DIRECTION, t:any): Coordinates{
-		return {x: coords.x, y: coords.y};
-	},
-	JumpServeTossing: function(coords: Coordinates, dir: DIRECTION, t:any): Coordinates{
-		return {x: coords.x, y: coords.y};
-	},
-	
 }
 /*
 todo delete this
@@ -149,52 +108,6 @@ export type ClientRenderData = {
 		animation: AnimationDetails[typeof key],
 		position: any
 	}
-}
-export const CLIENT_RENDERING: ClientRenderData = {
-	Idle:{
-		animation: ANIMATION_DETAILS.Idle,
-		position: POSITION_FUNCTIONS.Idle
-	},
-	Running:{
-		animation: ANIMATION_DETAILS.Running,
-		position: POSITION_FUNCTIONS.Running
-	},
-	Passing:{
-		animation: ANIMATION_DETAILS.Passing,
-		position: POSITION_FUNCTIONS.Passing
-	},
-	Jumping:{
-		animation: ANIMATION_DETAILS.Jumping,
-		position: POSITION_FUNCTIONS.Jumping
-	},
-	Setting:{
-		animation: ANIMATION_DETAILS.Setting,
-		position: POSITION_FUNCTIONS.Setting
-	},
-	Spiking:{
-		animation: ANIMATION_DETAILS.Spiking,
-		position: POSITION_FUNCTIONS.Spiking
-	},
-	Blocking:{
-		animation: ANIMATION_DETAILS.Blocking,
-		position: POSITION_FUNCTIONS.Blocking
-	},
-	Stepback:{
-		animation: ANIMATION_DETAILS.Stepback,
-		position: POSITION_FUNCTIONS.Stepback
-	},
-	Falling:{
-		animation: ANIMATION_DETAILS.Falling,
-		position: POSITION_FUNCTIONS.Falling
-	},
-	Diving:{
-		animation: ANIMATION_DETAILS.Diving,
-		position: POSITION_FUNCTIONS.Diving
-	},
-	JumpServeTossing:{
-		animation: ANIMATION_DETAILS.JumpServeTossing,
-		position: POSITION_FUNCTIONS.JumpServeTossing
-	},
 }
 
 export const PERFECT_SCALING_RATIO = 1.8;

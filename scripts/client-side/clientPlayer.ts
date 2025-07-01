@@ -1,4 +1,5 @@
-import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStates, POSITION_FUNCTIONS, CLIENT_RENDERING, ClientRenderData, SCALING_UNIT_TO_PLAYER_SIZE, ClientInputData, PLAYERTYPE } from "./constants.js";
+import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStates, ClientRenderData, SCALING_UNIT_TO_PLAYER_SIZE, ClientInputData, PLAYERTYPE, AnimationDetails } from "./constants.js";
+import { PositionFunctions } from "./positionFunctions.js";
 
 
 
@@ -15,7 +16,7 @@ export class PlayerRenderer{
     //assets and rendering members
     ctx: CanvasRenderingContext2D;
     spriteMap: any;
-    renderData: ClientRenderData;
+    animationDetails: AnimationDetails;
     playerSize: number;
     constructor(
         ctx: CanvasRenderingContext2D, 
@@ -34,7 +35,7 @@ export class PlayerRenderer{
         this.spriteMap = spriteMap;
         this.serverToClientCoords = coordConvertingFunction;
         this.initialPosition = initialPosition;
-        this.renderData = CLIENT_RENDERING;
+        this.animationDetails = ANIMATION_DETAILS;
         this.playerState = playerState;
         this.playerSize = playerSize;
         this.name = name;
@@ -47,11 +48,11 @@ export class PlayerRenderer{
         let timeElapsed = Date.now() - this.startDate;
         
         //todo plug into fn(initialPos, t)
-        // console.log(PHYSICS_FUNCTIONS[this.playerState](this.initialPosition, direction, timeElapsed));
+        // console.log(PositionFunctions[this.playerState](this.initialPosition, direction, timeElapsed));
         return this.serverToClientCoords(x, y);
     }
     render(deltatime: number){
-        let { maxFrame, mapRow, fps, freezeFrame } = this.renderData[this.playerState].animation;
+        let { maxFrame, mapRow, fps, freezeFrame } = this.animationDetails[this.playerState];
         //converts to frame length
         let frameLength = 1000 / fps;
         let animationLength = Date.now() - this.startDate;
