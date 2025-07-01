@@ -34,7 +34,6 @@ export const calculateGravity = (yInitial: number, gravity: number, time: number
 		y: 0
 	}
 }
-
 export type AnimationDetails = {
 	[key: string]: {
 		maxFrame: number,
@@ -101,8 +100,17 @@ export const ANIMATION_DETAILS: AnimationDetails = {
 		maxFrame: 7,
 		mapRow: 9,
         fps:0
-	},
+	}
 }
+
+export const getCycleTime = (key: string): number => {
+	let animationData = ANIMATION_DETAILS[key];
+	if(animationData.fps == 0 || animationData.fps == Infinity){
+		return Infinity;
+	}
+	return 1000 / animationData.fps * (animationData.maxFrame - 1);
+}
+
 export type ClientRenderData = {
 	[key: string]: {
 		animation: AnimationDetails[typeof key],
