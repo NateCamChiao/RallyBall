@@ -155,7 +155,7 @@ export type BallStateData = {
 export type PlayerStateData = {
 	dir: DIRECTION,
 	initalPosition: Coordinates,
-	startData: Date,
+	startDate: Date,
 	playerState: PlayerStates
 }
 
@@ -163,6 +163,27 @@ export type GameStateData = {
 	players: PlayerStateData[],
 	gameState: GAMESTATES,
 	ball: BallStateData
+}
+
+export type KeybindMap = {
+	"up": string;
+	"down": string;
+	"right": string;
+	"left": string;
+}
+
+export const defaultKeybinds: KeybindMap = {
+	"up": "w",
+	"down": "s",
+	"left": "a",
+	"right": "d"
+}
+
+export const secondaryKeybinds: KeybindMap = {
+	"up": "ArrowUp",
+	"down": "ArrowDown",
+	"left": "ArrowLeft",
+	"right": "ArrowRight"
 }
 export type ClientInputData = {
 	keysDown: any[],
