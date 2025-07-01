@@ -48,7 +48,7 @@ export class PlayerRenderer{
         // console.log(PHYSICS_FUNCTIONS[this.playerState](this.initialPosition, direction, timeElapsed));
         return this.serverToClientCoords(x, y);
     }
-    render(ctx: CanvasRenderingContext2D, deltatime: number){
+    render(deltatime: number){
         let { maxFrame, mapRow, fps, freezeFrame } = this.renderData[this.playerState].animation;
         //converts to frame length
         let frameLength = 1000 / fps;
@@ -61,15 +61,15 @@ export class PlayerRenderer{
         }
        // console.log(frame, frameLength)
         let coords = this.calculateClientCoords(this.dir);
-        ctx.save();
+        this.ctx.save();
         
         let playerSize;
-        ctx.translate(coords.x + this.playerSize / 2, coords.y + this.playerSize / 2);
+        this.ctx.translate(coords.x + this.playerSize / 2, coords.y + this.playerSize / 2);
         if(this.dir == DIRECTION.LEFT){
-            ctx.scale(-1, 1);
+            this.ctx.scale(-1, 1);
         }
 
-        ctx.drawImage(
+        this.ctx.drawImage(
             this.spriteMap, 
             frame * PLAYER_ANIMATION.FRAME_WIDTH,
             mapRow * PLAYER_ANIMATION.FRAME_WIDTH,
@@ -81,13 +81,13 @@ export class PlayerRenderer{
             this.playerSize
         );
         if(true){
-            ctx.strokeRect(-this.playerSize / 2, -this.playerSize / 2, this.playerSize, this.playerSize);
+            this.ctx.strokeRect(-this.playerSize / 2, -this.playerSize / 2, this.playerSize, this.playerSize);
         }
-        ctx.restore();
+        this.ctx.restore();
         //draw nametag
         if(this.name.length > 0){
-            ctx.fillStyle = "black";
-            ctx.fillText(this.name, coords.x + this.playerSize / 2 + this.playerSize * PLAYER_ANIMATION.NAME_CONST.LEFT_AMOUNT_BY_PLAYER_SIZE, coords.y + this.playerSize * PLAYER_ANIMATION.NAME_CONST.DOWN_AMOUNT_BY_PLAYER_SIZE);
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText(this.name, coords.x + this.playerSize / 2 + this.playerSize * PLAYER_ANIMATION.NAME_CONST.LEFT_AMOUNT_BY_PLAYER_SIZE, coords.y + this.playerSize * PLAYER_ANIMATION.NAME_CONST.DOWN_AMOUNT_BY_PLAYER_SIZE);
         }
     }
     setName(name: string){
@@ -122,7 +122,7 @@ export class ClientPlayer{
     name: string;
     playerRenderer: PlayerRenderer;
     inputLogicHandler: PlayerStateInputHandler;
-    constructor(ctx: CanvasRenderingContext2D, playerSpriteMap: any, coordConvertingFn: CoordConversionFn, playerSize: number, name: string){
+    constructor(ctx: CanvasRenderingContext2D, playerSpriteMap: any, coordConvertingFn: CoordConversionFn, playerSize: number, name = ""){
         this.name = name;
         this.playerRenderer = new PlayerRenderer(ctx, DIRECTION.LEFT, {x: 30, y: 63}, 0, playerSpriteMap, coordConvertingFn, playerSize);
         this.inputLogicHandler = new PlayerStateInputHandler();

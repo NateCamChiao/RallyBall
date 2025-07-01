@@ -1,4 +1,4 @@
-import { PlayerRenderer } from "./clientPlayer.js";
+import { ClientPlayer, PlayerRenderer } from "./clientPlayer.js";
 import { DIRECTION, PERFECT_SCALING_RATIO, PLAYER_ANIMATION, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
 import { InputHandler } from "./inputHandler.js";
 import { ConnectionHandler, RealServerHandler, FakeServerHandler } from "./connections.js";
@@ -44,7 +44,7 @@ export class Game{
     state: number;
     camera: { x: number; y: number; currentPosition(): { cameraX: number; cameraY: number; }; };
     ball: { x: number; y: number; r: number; };
-    playerList: PlayerRenderer[];
+    playerList: ClientPlayer[];
 
     inputHandler: any;
     connectionHandler: ConnectionHandler;
@@ -62,7 +62,7 @@ export class Game{
         this.state = gameState;
         this.camera = clientCamera;
         this.ball = clientBall;
-        this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.LEFT, {x: 30, y: 63}, 0, this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE)];
+        this.playerList = [new ClientPlayer(this.ctx, this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE)];
         this.inputHandler = new InputHandler(5);
         this.connectionHandler = connectionHandler;
 
@@ -76,7 +76,6 @@ export class Game{
 
     updateGame(currentTime: number){
         if(this.lastTimeStamp == -1){
-            // console.log("sdf")
             this.lastTimeStamp = currentTime;
         }
         
@@ -100,11 +99,11 @@ export class Game{
             this.heightOffset = 0;
         }
 
-        this.playerList.forEach(playerRenderer => playerRenderer.updateScalingUnit(this.scalingUnit));
+        this.playerList.forEach(clientPlayer => clientPlayer.playerRenderer.updateScalingUnit(this.scalingUnit));
     }
 
     renderPlayers(deltatime: number){
-        this.playerList.forEach(player => player.render(this.ctx, deltatime));
+        this.playerList.forEach(player => player.playerRenderer.render(deltatime));
     }
 
     serverToClientCoords(x: number, y: number){
