@@ -204,7 +204,12 @@ export const PLAYER_FRAME_WIDTH = 100;// width on sprite map
 export const PLAYER_ANIMATION = {
 	FRAME_WIDTH: 100, //width of player in assets
     WIDTH: 0,
-    HEIGHT: 0
+    HEIGHT: 0,
+	NAME_CONST: {
+		NAME_RATIO_TO_SCALING_UNIT: 25/1638,
+		LEFT_AMOUNT_BY_PLAYER_SIZE: -0.05,
+		DOWN_AMOUNT_BY_PLAYER_SIZE: 0.15
+	}
 }
 
 export enum DIRECTION {

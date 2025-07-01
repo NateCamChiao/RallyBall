@@ -1,5 +1,5 @@
 import { PlayerRenderer } from "./clientPlayer.js";
-import { DIRECTION, PERFECT_SCALING_RATIO, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
+import { DIRECTION, PERFECT_SCALING_RATIO, PLAYER_ANIMATION, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
 import { InputHandler } from "./inputHandler.js";
 import { ConnectionHandler, RealServerHandler, FakeServerHandler } from "./connections.js";
 
@@ -52,7 +52,8 @@ export class Game{
     lastTimeStamp: number;
     constructor(canvas: HTMLCanvasElement, playerAssests: CanvasImageSource, sceneAssests: CanvasImageSource, connectionHandler = new FakeServerHandler(), gameState = GAMESTATE.UNPAUSED){
         this.canvas = canvas;
-        this.ctx = this.canvas.getContext("2d") ?? new CanvasRenderingContext2D; 
+        this.ctx = this.canvas.getContext("2d") ?? new CanvasRenderingContext2D;
+        this.ctx.textAlign = "center";
         this.assets = {
             player: playerAssests,
             scene: sceneAssests
@@ -69,6 +70,7 @@ export class Game{
         this.lastTimeStamp = -1;
         this.setUpKeyListeners();
         this.findScalingUnit(canvas);
+        this.ctx.font = PLAYER_ANIMATION.NAME_CONST.NAME_RATIO_TO_SCALING_UNIT * this.scalingUnit + "px san-serif"
         this.updateGame(0);
     }
 

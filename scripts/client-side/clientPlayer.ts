@@ -1,4 +1,4 @@
-import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStates, POSITION_FUNCTIONS, CLIENT_RENDERING, ClientRenderData, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
+import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStates, POSITION_FUNCTIONS, CLIENT_RENDERING, ClientRenderData, SCALING_UNIT_TO_PLAYER_SIZE, ClientInputData } from "./constants.js";
 
 
 
@@ -6,6 +6,7 @@ type CoordConversionFn = (x: number, y: number) => Coordinates;
 
 export class PlayerRenderer{
     //render logic members
+    name: string = "john";
     dir: DIRECTION;
     startDate: number;
     initialPosition: Coordinates;
@@ -79,10 +80,57 @@ export class PlayerRenderer{
             this.playerSize,
             this.playerSize
         );
+        if(true){
+            ctx.strokeRect(-this.playerSize / 2, -this.playerSize / 2, this.playerSize, this.playerSize);
+        }
         ctx.restore();
+        //draw nametag
+        if(this.name.length > 0){
+            ctx.fillStyle = "black";
+            ctx.fillText(this.name, coords.x + this.playerSize / 2 + this.playerSize * PLAYER_ANIMATION.NAME_CONST.LEFT_AMOUNT_BY_PLAYER_SIZE, coords.y + this.playerSize * PLAYER_ANIMATION.NAME_CONST.DOWN_AMOUNT_BY_PLAYER_SIZE);
+        }
+    }
+    setName(name: string){
+        this.name = name;
     }
 }
 
+export class PlayerStateInputHandler{
+    playerState: PlayerStateInputLogic;
+    constructor(playerState = new IdleState()){
+        this.playerState = playerState;
+    }
+    onInput(inputData: ClientInputData){
+        let newState: PlayerStateInputLogic | null = this.playerState.onInput(inputData);
+        if(newState != null){
+            this.playerState = newState;
+        }
+    }
+}
+interface PlayerStateInputLogic{
+    onInput: (inputData: ClientInputData) => PlayerStateInputLogic | null;
+}
+export class IdleState implements PlayerStateInputLogic{
+    onInput(inputData: ClientInputData): PlayerStateInputLogic | null{
+
+        return null;
+    }
+}
+
+
+export class ClientPlayer{
+    name: string;
+    playerRenderer: PlayerRenderer;
+    inputLogicHandler: PlayerStateInputHandler;
+    constructor(ctx: CanvasRenderingContext2D, playerSpriteMap: any, coordConvertingFn: CoordConversionFn, playerSize: number, name: string){
+        this.name = name;
+        this.playerRenderer = new PlayerRenderer(ctx, DIRECTION.LEFT, {x: 30, y: 63}, 0, playerSpriteMap, coordConvertingFn, playerSize);
+        this.inputLogicHandler = new PlayerStateInputHandler();
+    }
+    getInputCallback(): (inputData: ClientInputData) => void {
+        return this.inputLogicHandler.onInput;
+    }
+}
 class BallRenderer{
     initialPos: Coordinates;
     init_H: number;
