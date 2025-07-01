@@ -3,28 +3,42 @@ import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStat
 
 
 type CoordConversionFn = (x: number, y: number) => Coordinates;
-class RenderState{
-    playerSize: number;
-    initialPosition: Coordinates;
-    startDate: number;
-    serverToClientCoords: CoordConversionFn;
-    playerState: PlayerStates;
-    renderData: ClientRenderData;
-    constructor(renderData: ClientRenderData, initalPosition: Coordinates, coordConversion: CoordConversionFn, playerSize = 100, playerState = PlayerStates.Idle, startDate = Date.now()){
-        this.renderData = renderData;
-        this.initialPosition = initalPosition;
-        this.serverToClientCoords = coordConversion;
-        this.playerState = playerState;
-        this.startDate = startDate;
 
+export class PlayerRenderer{
+    //render logic members
+    dir: DIRECTION;
+    startDate: number;
+    initialPosition: Coordinates;
+    playerState: PlayerStates;
+    serverToClientCoords: CoordConversionFn;
+    //assets and rendering members
+    ctx: CanvasRenderingContext2D;
+    spriteMap: any;
+    renderData: ClientRenderData;
+    playerSize: number;
+    constructor(
+        ctx: CanvasRenderingContext2D, 
+        dir: DIRECTION, 
+        initialPosition: Coordinates, 
+        startDate: number, 
+        spriteMap: any, 
+        coordConvertingFunction: CoordConversionFn,
+        playerSize: number,
+        playerState = PlayerStates.Idle
+    ){
+        this.ctx = ctx;
+        this.dir = dir;
+        this.startDate = startDate;
+        this.spriteMap = spriteMap;
+        this.serverToClientCoords = coordConvertingFunction;
+        this.initialPosition = initialPosition;
+        this.renderData = CLIENT_RENDERING;
+        this.playerState = playerState;
         this.playerSize = playerSize;
     }
-
-    updatePlayerSize(newSize: number){
-        this.playerSize = newSize;
+    updateScalingUnit(scalingunit: number){
+        this.playerSize = scalingunit * SCALING_UNIT_TO_PLAYER_SIZE;
     }
-
-    //client-side prediction
     calculateClientCoords(direction: DIRECTION): Coordinates{
         let {x, y} = this.initialPosition;
         let timeElapsed = Date.now() - this.startDate;
@@ -33,8 +47,7 @@ class RenderState{
         // console.log(PHYSICS_FUNCTIONS[this.playerState](this.initialPosition, direction, timeElapsed));
         return this.serverToClientCoords(x, y);
     }
-
-    render(ctx: CanvasRenderingContext2D, deltatime: number, direction: DIRECTION, spriteMap: CanvasImageSource){
+    render(ctx: CanvasRenderingContext2D, deltatime: number){
         let { maxFrame, mapRow, fps, freezeFrame } = this.renderData[this.playerState].animation;
         //converts to frame length
         let frameLength = 1000 / fps;
@@ -46,16 +59,17 @@ class RenderState{
             frame = freezeFrame ?? 0;
         }
        // console.log(frame, frameLength)
-        let coords = this.calculateClientCoords(direction);
+        let coords = this.calculateClientCoords(this.dir);
         ctx.save();
         
+        let playerSize;
         ctx.translate(coords.x + this.playerSize / 2, coords.y + this.playerSize / 2);
-        if(direction == DIRECTION.LEFT){
+        if(this.dir == DIRECTION.LEFT){
             ctx.scale(-1, 1);
         }
 
         ctx.drawImage(
-            spriteMap, 
+            this.spriteMap, 
             frame * PLAYER_ANIMATION.FRAME_WIDTH,
             mapRow * PLAYER_ANIMATION.FRAME_WIDTH,
             PLAYER_ANIMATION.FRAME_WIDTH,
@@ -66,36 +80,6 @@ class RenderState{
             this.playerSize
         );
         ctx.restore();
-    }
-}
-
-//
-export class PlayerRenderer{
-    ctx: any;
-    renderState: RenderState;
-    dir: number;
-    startDate: Date;
-    spriteMap: any;
-    constructor(
-        ctx: any, 
-        dir: number, 
-        initialPosition: Coordinates, 
-        startDate: Date, 
-        spriteMap: any, 
-        coordConvertingFunction: CoordConversionFn,
-        playerSize: number
-    ){
-        this.ctx = ctx;
-        this.renderState = new RenderState(CLIENT_RENDERING, initialPosition, coordConvertingFunction, playerSize, PlayerStates.Diving);
-        this.dir = dir;
-        this.startDate = startDate;
-        this.spriteMap = spriteMap;
-    }
-    updateScalingUnit(scalingunit: number){
-        this.renderState.updatePlayerSize(scalingunit * SCALING_UNIT_TO_PLAYER_SIZE);
-    }
-    render(ctx: CanvasRenderingContext2D, deltatime: number){
-        this.renderState.render(ctx, deltatime, this.dir, this.spriteMap);
     }
 }
 
