@@ -8,12 +8,6 @@ const GAMESTATE = {
     PAUSED: 0,
     UNPAUSED: 1,
 }
-
-const scalingRatio = 1.8; //2.3 width / height
-// let scalingUnit, //optimal height
-// heightOffset;
-// let scalingWidthOffset = 0;
-
 let clientCamera = {
     x: 0,
     y: 0,
@@ -23,14 +17,12 @@ let clientCamera = {
             cameraY: 0
         }
     },
-    
 }
 let clientBall = {
     x: 0,
     y: 0,
     r: 40,
 }
-
 
 export class Game{
     //rendering members
@@ -91,8 +83,6 @@ export class Game{
             this.scalingUnit = canvas.width;
             this.scalingWidthOffset = 0;
             this.heightOffset = canvas.height - canvas.width / PERFECT_SCALING_RATIO;
-            // console.log(canvas.width / PERFECT_SCALING_RATIO, canvas.height);
-          // heightOffset =
         } else if (canvas.height * PERFECT_SCALING_RATIO < canvas.width) {
             this.scalingUnit = canvas.height * PERFECT_SCALING_RATIO; //0.71 finds target width 1.8 is much closer
             this.scalingWidthOffset = (canvas.width - this.scalingUnit) / 2; //half of the target width difference
@@ -241,19 +231,7 @@ export class Game{
     }
 
     setUpKeyListeners(){
-        document.addEventListener("keydown", e => {
-            
-            this.inputHandler.onKeyDown(e);
-            // console.table(this.inputHandler.getKeyData())
-        });
-        document.addEventListener("keyup", e => {
-            this.inputHandler.onKeyUp(e);
-            // console.table(this.inputHandler.getKeyData())
-
-        });
+        document.addEventListener("keydown", e => this.inputHandler.onKeyDown(e));
+        document.addEventListener("keyup", e => this.inputHandler.onKeyUp(e));
     }
-
-    
 }
-
-
