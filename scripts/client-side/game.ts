@@ -1,5 +1,5 @@
 import { ClientPlayer, PlayerRenderer } from "./clientPlayer.js";
-import { DIRECTION, PERFECT_SCALING_RATIO, PLAYER_ANIMATION, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
+import { DIRECTION, PERFECT_SCALING_RATIO, PLAYER_ANIMATION, PLAYERTYPE, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
 import { InputHandler } from "./inputHandler.js";
 import { ConnectionHandler, RealServerHandler, FakeServerHandler } from "./connections.js";
 
@@ -42,7 +42,7 @@ export class Game{
     connectionHandler: ConnectionHandler;
     stopUpdating: boolean;
     lastTimeStamp: number;
-    constructor(canvas: HTMLCanvasElement, playerAssests: CanvasImageSource, sceneAssests: CanvasImageSource, connectionHandler = new FakeServerHandler(), gameState = GAMESTATE.UNPAUSED){
+    constructor(canvas: HTMLCanvasElement, playerAssests: CanvasImageSource, sceneAssests: CanvasImageSource, connectionHandler = new FakeServerHandler(), gameState = GAMESTATE.UNPAUSED, playerAmount: 1 | 2 | 3 | 4 = 1){
         this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d") ?? new CanvasRenderingContext2D;
         this.ctx.textAlign = "center";
@@ -54,8 +54,8 @@ export class Game{
         this.state = gameState;
         this.camera = clientCamera;
         this.ball = clientBall;
-        this.playerList = [new ClientPlayer(this.ctx, this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE)];
         this.inputHandler = new InputHandler(5);
+        this.playerList = [];
         this.connectionHandler = connectionHandler;
 
         this.stopUpdating = false;
@@ -64,6 +64,14 @@ export class Game{
         this.findScalingUnit(canvas);
         this.ctx.font = PLAYER_ANIMATION.NAME_CONST.NAME_RATIO_TO_SCALING_UNIT * this.scalingUnit + "px san-serif"
         this.updateGame(0);
+        this.addPlayers(PLAYERTYPE.REAL, "john");
+    }
+
+    addPlayers(playerType: PLAYERTYPE, name: string){
+        let length: number = this.playerList.push(new ClientPlayer(playerType, this.ctx, this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE, name));
+        if(playerType == PLAYERTYPE.REAL){
+            this.inputHandler.addEventCallback(this.playerList[length - 1].getInputCallback().bind(this.playerList[length - 1]));
+        }
     }
 
     updateGame(currentTime: number){
