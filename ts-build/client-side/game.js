@@ -1,15 +1,11 @@
-import { PlayerRenderer } from "./clientPlayer.js";
-import { DIRECTION, PERFECT_SCALING_RATIO, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
+import { ClientPlayer } from "./clientPlayer.js";
+import { PERFECT_SCALING_RATIO, PLAYER_ANIMATION, PLAYERTYPE, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
 import { InputHandler } from "./inputHandler.js";
 import { FakeServerHandler } from "./connections.js";
 const GAMESTATE = {
     PAUSED: 0,
     UNPAUSED: 1,
 };
-const scalingRatio = 1.8; //2.3 width / height
-// let scalingUnit, //optimal height
-// heightOffset;
-// let scalingWidthOffset = 0;
 let clientCamera = {
     x: 0,
     y: 0,
@@ -30,9 +26,9 @@ export class Game {
     canvas;
     ctx;
     assets;
-    scalingUnit;
-    heightOffset;
-    scalingWidthOffset;
+    scalingUnit = 0;
+    heightOffset = 0;
+    scalingWidthOffset = 0;
     //game state members
     state;
     camera;
@@ -42,32 +38,36 @@ export class Game {
     connectionHandler;
     stopUpdating;
     lastTimeStamp;
-    constructor(canvas, playerAssests, sceneAssests, connectionHandler = new FakeServerHandler(), gameState = GAMESTATE.UNPAUSED) {
+    constructor(canvas, playerAssests, sceneAssests, connectionHandler = new FakeServerHandler(), gameState = GAMESTATE.UNPAUSED, playerAmount = 1) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d") ?? new CanvasRenderingContext2D;
+        this.ctx.textAlign = "center";
         this.assets = {
             player: playerAssests,
             scene: sceneAssests
         };
-        //defaults
-        this.scalingUnit = 0;
-        this.heightOffset = 0;
-        this.scalingWidthOffset = 0;
         this.state = gameState;
         this.camera = clientCamera;
         this.ball = clientBall;
-        this.playerList = [new PlayerRenderer(this.ctx, DIRECTION.LEFT, { x: 30, y: 63 }, 0, this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE)];
         this.inputHandler = new InputHandler(5);
+        this.playerList = [];
         this.connectionHandler = connectionHandler;
         this.stopUpdating = false;
         this.lastTimeStamp = -1;
         this.setUpKeyListeners();
         this.findScalingUnit(canvas);
+        this.ctx.font = PLAYER_ANIMATION.NAME_CONST.NAME_RATIO_TO_SCALING_UNIT * this.scalingUnit + "px san-serif";
         this.updateGame(0);
+        this.addPlayers(PLAYERTYPE.REAL, "john");
+    }
+    addPlayers(playerType, name) {
+        let length = this.playerList.push(new ClientPlayer(playerType, this.ctx, this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE, name));
+        if (playerType == PLAYERTYPE.REAL) {
+            this.inputHandler.addEventCallback(this.playerList[length - 1].getInputCallback().bind(this.playerList[length - 1]));
+        }
     }
     updateGame(currentTime) {
         if (this.lastTimeStamp == -1) {
-            // console.log("sdf")
             this.lastTimeStamp = currentTime;
         }
         let deltatime = currentTime - this.lastTimeStamp;
@@ -81,18 +81,16 @@ export class Game {
             this.scalingUnit = canvas.width;
             this.scalingWidthOffset = 0;
             this.heightOffset = canvas.height - canvas.width / PERFECT_SCALING_RATIO;
-            // console.log(canvas.width / PERFECT_SCALING_RATIO, canvas.height);
-            // heightOffset =
         }
         else if (canvas.height * PERFECT_SCALING_RATIO < canvas.width) {
             this.scalingUnit = canvas.height * PERFECT_SCALING_RATIO; //0.71 finds target width 1.8 is much closer
             this.scalingWidthOffset = (canvas.width - this.scalingUnit) / 2; //half of the target width difference
             this.heightOffset = 0;
         }
-        this.playerList.forEach(playerRenderer => playerRenderer.updateScalingUnit(this.scalingUnit));
+        this.playerList.forEach(clientPlayer => clientPlayer.playerRenderer.updateScalingUnit(this.scalingUnit));
     }
     renderPlayers(deltatime) {
-        this.playerList.forEach(player => player.render(this.ctx, deltatime));
+        this.playerList.forEach(player => player.playerRenderer.render(deltatime));
     }
     serverToClientCoords(x, y) {
         return {
@@ -182,13 +180,7 @@ export class Game {
         this.drawScene(0);
     }
     setUpKeyListeners() {
-        document.addEventListener("keydown", e => {
-            this.inputHandler.onKeyDown(e);
-            // console.table(this.inputHandler.getKeyData())
-        });
-        document.addEventListener("keyup", e => {
-            this.inputHandler.onKeyUp(e);
-            // console.table(this.inputHandler.getKeyData())
-        });
+        document.addEventListener("keydown", e => this.inputHandler.onKeyDown(e));
+        document.addEventListener("keyup", e => this.inputHandler.onKeyUp(e));
     }
 }

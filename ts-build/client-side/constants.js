@@ -12,41 +12,6 @@ export var PlayerStates;
     PlayerStates["Diving"] = "Diving";
     PlayerStates["JumpServeTossing"] = "JumpServeTossing";
 })(PlayerStates || (PlayerStates = {}));
-export const POSITION_FUNCTIONS = {
-    Idle: function (coords, dir, t) {
-        return { x: coords.x, y: coords.y };
-    },
-    Running: function (coords, dir, t) {
-        return { x: coords.x, y: coords.y };
-    },
-    Jumping: function (coords, dir, t) {
-        return { x: coords.x, y: coords.y };
-    },
-    Spiking: function (coords, dir, t) {
-        return { x: coords.x, y: coords.y };
-    },
-    Passing: function (coords, dir, t) {
-        return { x: coords.x, y: coords.y };
-    },
-    Setting: function (coords, dir, t) {
-        return { x: coords.x, y: coords.y };
-    },
-    Blocking: function (coords, dir, t) {
-        return { x: coords.x, y: coords.y };
-    },
-    Stepback: function (coords, dir, t) {
-        return { x: coords.x, y: coords.y };
-    },
-    Falling: function (coords, dir, t) {
-        return { x: coords.x, y: coords.y };
-    },
-    Diving: function (coords, dir, t) {
-        return { x: coords.x, y: coords.y };
-    },
-    JumpServeTossing: function (coords, dir, t) {
-        return { x: coords.x, y: coords.y };
-    },
-};
 /*
 todo delete this
 ball positioning for later
@@ -118,59 +83,18 @@ export const ANIMATION_DETAILS = {
         fps: 0
     },
 };
-export const CLIENT_RENDERING = {
-    Idle: {
-        animation: ANIMATION_DETAILS.Idle,
-        position: POSITION_FUNCTIONS.Idle
-    },
-    Running: {
-        animation: ANIMATION_DETAILS.Running,
-        position: POSITION_FUNCTIONS.Running
-    },
-    Passing: {
-        animation: ANIMATION_DETAILS.Passing,
-        position: POSITION_FUNCTIONS.Passing
-    },
-    Jumping: {
-        animation: ANIMATION_DETAILS.Jumping,
-        position: POSITION_FUNCTIONS.Jumping
-    },
-    Setting: {
-        animation: ANIMATION_DETAILS.Setting,
-        position: POSITION_FUNCTIONS.Setting
-    },
-    Spiking: {
-        animation: ANIMATION_DETAILS.Spiking,
-        position: POSITION_FUNCTIONS.Spiking
-    },
-    Blocking: {
-        animation: ANIMATION_DETAILS.Blocking,
-        position: POSITION_FUNCTIONS.Blocking
-    },
-    Stepback: {
-        animation: ANIMATION_DETAILS.Stepback,
-        position: POSITION_FUNCTIONS.Stepback
-    },
-    Falling: {
-        animation: ANIMATION_DETAILS.Falling,
-        position: POSITION_FUNCTIONS.Falling
-    },
-    Diving: {
-        animation: ANIMATION_DETAILS.Diving,
-        position: POSITION_FUNCTIONS.Diving
-    },
-    JumpServeTossing: {
-        animation: ANIMATION_DETAILS.JumpServeTossing,
-        position: POSITION_FUNCTIONS.JumpServeTossing
-    },
-};
 export const PERFECT_SCALING_RATIO = 1.8;
 export const SCALING_UNIT_TO_PLAYER_SIZE = 0.17; //multiply by scaling unit to get player size
 export const PLAYER_FRAME_WIDTH = 100; // width on sprite map
 export const PLAYER_ANIMATION = {
     FRAME_WIDTH: 100, //width of player in assets
     WIDTH: 0,
-    HEIGHT: 0
+    HEIGHT: 0,
+    NAME_CONST: {
+        NAME_RATIO_TO_SCALING_UNIT: 25 / 1638,
+        LEFT_AMOUNT_BY_PLAYER_SIZE: -0.05,
+        DOWN_AMOUNT_BY_PLAYER_SIZE: 0.15
+    }
 };
 export var DIRECTION;
 (function (DIRECTION) {
@@ -186,3 +110,10 @@ export var GAMESTATES;
     GAMESTATES[GAMESTATES["ENDED"] = 4] = "ENDED";
     GAMESTATES[GAMESTATES["SANDBOX"] = 5] = "SANDBOX";
 })(GAMESTATES || (GAMESTATES = {}));
+export var PLAYERTYPE;
+(function (PLAYERTYPE) {
+    PLAYERTYPE[PLAYERTYPE["REAL"] = 0] = "REAL";
+    PLAYERTYPE[PLAYERTYPE["ONLINE"] = 1] = "ONLINE";
+    PLAYERTYPE[PLAYERTYPE["AI"] = 2] = "AI";
+    PLAYERTYPE[PLAYERTYPE["DUMMY"] = 3] = "DUMMY";
+})(PLAYERTYPE || (PLAYERTYPE = {}));
