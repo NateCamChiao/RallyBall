@@ -22,7 +22,7 @@ export enum PlayerStates {
 }
 
 export type PositionFunctions = {
-	[key: string]: (coords: Coordinates, dir: DIRECTION, t:any) => Coordinates
+	[key: string]: (coords: Coordinates, dir: DIRECTION, t:any) => Coordinates;
 }
 
 export const POSITION_FUNCTIONS: PositionFunctions = {
@@ -224,6 +224,13 @@ export enum GAMESTATES {
 	PAUSED,
 	ENDED,
 	SANDBOX
+}
+
+export enum PLAYERTYPE {
+	REAL,
+	ONLINE,
+	AI,
+	DUMMY
 }
 
 export type BallStateData = {
