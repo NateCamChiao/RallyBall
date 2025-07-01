@@ -1,4 +1,4 @@
-
+export const debugMode = false;
 export interface Coordinates{
 	x: number,
     y: number

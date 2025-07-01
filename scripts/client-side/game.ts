@@ -1,5 +1,5 @@
 import { ClientPlayer, PlayerRenderer } from "./clientPlayer.js";
-import { DIRECTION, PERFECT_SCALING_RATIO, PLAYER_ANIMATION, PLAYERTYPE, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
+import { debugMode, DIRECTION, PERFECT_SCALING_RATIO, PLAYER_ANIMATION, PLAYERTYPE, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
 import { InputHandler } from "./inputHandler.js";
 import { ConnectionHandler, RealServerHandler, FakeServerHandler } from "./connections.js";
 
@@ -10,7 +10,7 @@ const GAMESTATE = {
 }
 let clientCamera = {
     x: 0,
-    y: 0,
+    y: -0,
     currentPosition(){
         return {
             cameraX: 0,
@@ -137,11 +137,24 @@ export class Game{
             netDims.h
         );
         this.renderPlayers(deltatime);
+        if(debugMode)
+            this.visualizeViewport();
         // drawClouds();
         this.ctx.translate(-this.camera.x, -this.camera.y); // restore translation
         this.ctx.beginPath();
         this.ctx.moveTo(this.scalingWidthOffset, 0);
         this.ctx.lineTo(this.scalingWidthOffset, 0);
+        this.ctx.stroke();
+        
+    }
+    visualizeViewport(){
+        //draw viewport
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.scalingWidthOffset, this.heightOffset);
+        this.ctx.lineTo(this.scalingWidthOffset, this.heightOffset + this.scalingUnit / PERFECT_SCALING_RATIO);
+        this.ctx.lineTo(this.scalingWidthOffset + this.scalingUnit, this.heightOffset + this.scalingUnit / PERFECT_SCALING_RATIO);
+        this.ctx.lineTo(this.scalingWidthOffset + this.scalingUnit, this.heightOffset);
+        this.ctx.closePath();
         this.ctx.stroke();
     }
     //sets basic background color in case drawBackground() doesn't work
