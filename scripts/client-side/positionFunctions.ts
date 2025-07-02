@@ -75,5 +75,5 @@ export class PositionFunctions{
             endBehavior: { time: Infinity, newState: null }
         }
     }
-    
+
 }

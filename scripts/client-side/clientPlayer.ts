@@ -33,6 +33,7 @@ export class PlayerRenderer{
         this.ctx = ctx;
         this.dir = dir;
         this.startDate = startDate;
+        
         this.spriteMap = spriteMap;
         this.serverToClientCoords = coordConvertingFunction;
         this.initialPosition = initialPosition;
@@ -144,7 +145,7 @@ export class PlayerStateInputHandler{
         this.state = newState;
         this.setDurationTimer(newState);
         // this.stateDurationTimer = getCycleTime(this.state.playerState);
-        this.stateChangeCallback(this.state.playerState, this.state.dir, 0);
+        this.stateChangeCallback(this.state.playerState, this.state.dir, Date.now());
     }
 
     //returns method to call when key events fire
@@ -164,7 +165,7 @@ export class ClientPlayer{
         this.inputLogicHandler = new PlayerStateInputHandler(defaultKeybinds, this.updateState.bind(this));
         this.playerType = playerType;
     }
-    updateState(newPlayerState: PlayerStates, directon: DIRECTION, startDate = 0){
+    updateState(newPlayerState: PlayerStates, directon: DIRECTION, startDate = Date.now()){
         this.playerRenderer.changeState(newPlayerState, directon, startDate);
     }
     getInputCallback(): (inputData: ClientInputData) => void {
@@ -175,7 +176,7 @@ class BallRenderer{
     initialPos: Coordinates;
     init_H: number;
     init_V: number;
-    startDate: any;
+    startDate: number;
     constructor(initalCoord: Coordinates, intialHeight: number, intialVelocity: any, startDate: any){
         this.initialPos = initalCoord;
         this.init_H = intialHeight;
