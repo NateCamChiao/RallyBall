@@ -1,4 +1,4 @@
-import {DIRECTION, Coordinates, PlayerStates} from "./constants";
+import {DIRECTION, Coordinates, PlayerStates, SERVER} from "./constants";
 
 interface PositionData{
     coords: Coordinates;
@@ -9,69 +9,80 @@ interface PositionData{
 }
 
 export class PositionFunctions{
-    static Idle(coords: Coordinates, dir: DIRECTION, t: any): PositionData{
+    static Idle(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         return {
-            coords: coords,
+            coords: initialPosition,
             endBehavior: { time: Infinity, newState: null }
         }
     }
-    static Running(coords: Coordinates, dir: DIRECTION, t: any): PositionData{
+    static Running(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
+        let newPosition: Coordinates = initialPosition;
+        let maxPositionX = dir == DIRECTION.LEFT ? SERVER.netPos.x + SERVER.netPos.w + SERVER.player.size :SERVER.netPos.x - SERVER.player.size;
+        if(dir == DIRECTION.LEFT && initialPosition.x > maxPositionX){
+
+        }
+        else if(dir == DIRECTION.RIGHT && initialPosition.x < maxPositionX){
+
+        }
+        else{
+
+        }
         return {
-            coords: coords,
+            coords: newPosition,
             endBehavior: { time: Infinity, newState: null }
         }
     }
-    static Jumping(coords: Coordinates, dir: DIRECTION, t: any): PositionData{
+    static Jumping(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         return {
-            coords: coords,
+            coords: initialPosition,
             endBehavior: { time: Infinity, newState: null }
         }
     }
-    static Spiking(coords: Coordinates, dir: DIRECTION, t: any): PositionData{
+    static Spiking(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         return {
-            coords: coords,
+            coords: initialPosition,
             endBehavior: { time: Infinity, newState: null }
         }
     }
-    static Passing(coords: Coordinates, dir: DIRECTION, t: any): PositionData{
+    static Passing(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         return {
-            coords: coords,
+            coords: initialPosition,
             endBehavior: { time: Infinity, newState: null }
         }
     }
-    static Setting(coords: Coordinates, dir: DIRECTION, t: any): PositionData{
+    static Setting(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         return {
-            coords: coords,
+            coords: initialPosition,
             endBehavior: { time: Infinity, newState: null }
         }
     }
-    static Blocking(coords: Coordinates, dir: DIRECTION, t: any): PositionData{
+    static Blocking(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         return {
-            coords: coords,
+            coords: initialPosition,
             endBehavior: { time: Infinity, newState: null }
         }
     }
-    static Stepback(coords: Coordinates, dir: DIRECTION, t: any): PositionData{
+    static Stepback(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         return {
-            coords: coords,
+            coords: initialPosition,
             endBehavior: { time: Infinity, newState: null }
         }
     }
-    static Falling(coords: Coordinates, dir: DIRECTION, t: any): PositionData{
+    static Falling(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         return {
-            coords: coords,
+            coords: initialPosition,
             endBehavior: { time: Infinity, newState: null }
         }
     }
-    static Diving(coords: Coordinates, dir: DIRECTION, t: any): PositionData{
+    static Diving(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         return {
-            coords: coords,
+            coords: initialPosition,
             endBehavior: { time: Infinity, newState: null }
         }
     }
-    static JumpServeTossing(coords: Coordinates, dir: DIRECTION, t: any): PositionData{
+    static JumpServeTossing(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         return {
-            coords: coords,
+            coords: initialPosition,
             endBehavior: { time: Infinity, newState: null }
         }
     }
