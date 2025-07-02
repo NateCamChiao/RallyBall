@@ -133,6 +133,19 @@ export const PLAYER_ANIMATION = {
 		DOWN_AMOUNT_BY_PLAYER_SIZE: 0.15
 	}
 }
+export const SERVER = {
+	player: {
+		size: 0,
+		runningSpeed: 0
+	},
+	netPos: { // server coords
+		x: 0,
+		y: 0,
+		w: 0,
+		h: 0
+	}
+}
+
 
 export enum DIRECTION {
 	LEFT = 0,
