@@ -58,7 +58,7 @@ export const ANIMATION_DETAILS: AnimationDetails = {
 	Passing: {
 		maxFrame: 7,
 		mapRow: 2,
-        fps:50
+        fps:20
 	},
 	Jumping: {
 		maxFrame: 8,
