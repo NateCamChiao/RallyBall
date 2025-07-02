@@ -63,7 +63,8 @@ export const ANIMATION_DETAILS: AnimationDetails = {
 	Jumping: {
 		maxFrame: 8,
 		mapRow: 3,
-        fps:12
+        fps:12,
+		freezeFrame: 7
 	},
 	Setting: {
 		maxFrame: 6,
@@ -103,7 +104,7 @@ export const ANIMATION_DETAILS: AnimationDetails = {
 	}
 }
 
-export const getCycleTime = (key: string): number => {
+export const getAnimationLoopDuration = (key: string): number => {
 	let animationData = ANIMATION_DETAILS[key];
 	if(animationData.fps == 0 || animationData.fps == Infinity){
 		return Infinity;

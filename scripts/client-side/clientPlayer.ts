@@ -1,4 +1,4 @@
-import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStates, ClientRenderData, SCALING_UNIT_TO_PLAYER_SIZE, ClientInputData, PLAYERTYPE, AnimationDetails, KeybindMap, defaultKeybinds, getCycleTime, secondaryKeybinds } from "./constants.js";
+import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStates, ClientRenderData, SCALING_UNIT_TO_PLAYER_SIZE, ClientInputData, PLAYERTYPE, AnimationDetails, KeybindMap, defaultKeybinds, getAnimationLoopDuration, secondaryKeybinds } from "./constants.js";
 import { IdleState, PlayerStateInput } from "./playerStateInput.js";
 import { PositionFunctions } from "./positionFunctions.js";
 
@@ -62,14 +62,26 @@ export class PlayerRenderer{
     render(deltatime: number){
         let { maxFrame, mapRow, fps, freezeFrame } = this.animationDetails[this.playerState];
         //converts to frame length
-        let frameLength = 1000 / fps;
+        let frameLength;
         let animationLength = Date.now() - this.startDate;
+        //preventing dividing by zero
+        if(fps == 0){
+            frameLength = Infinity;
+        }
+        else{
+            frameLength = 1000 / fps;
+        }
         let frame: number = Math.floor(animationLength / frameLength) % (maxFrame); // * (delta time) /  mod (maxFrames * )
         // If can't divide by fps then use freezeFrame
-        if(frameLength == Infinity || frameLength == 0){
+        if(frameLength == Infinity){
             //zero if freezeFrame isn't available
             frame = freezeFrame ?? 0;
         }
+        //if animation is longer than animation cycle duration
+        if(animationLength >= getAnimationLoopDuration(this.playerState) && freezeFrame != undefined){
+            frame = freezeFrame;
+        }
+
        // console.log(frame, frameLength)
         let coords = this.calculateClientCoords();
         this.ctx.save();

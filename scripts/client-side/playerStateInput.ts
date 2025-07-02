@@ -1,4 +1,4 @@
-import { ClientInputData, DIRECTION, getCycleTime, KeybindMap, PlayerStates } from "./constants.js";
+import { ClientInputData, DIRECTION, getAnimationLoopDuration, KeybindMap, PlayerStates } from "./constants.js";
 
 interface PlayerStateInputLogic{
     playerState: PlayerStates;
@@ -82,7 +82,7 @@ export class PassingState extends PlayerStateInput{
     override getDefaultTimeoutBehavior(): { playerStateGetter: () => PlayerStateInput; animationLength: number; } {
         return {
             playerStateGetter: () => new IdleState(this.keybinds, this.dir),
-            animationLength: getCycleTime(this.playerState)
+            animationLength: getAnimationLoopDuration(this.playerState)
         }
     }
 }
@@ -107,7 +107,7 @@ export class SettingState extends PlayerStateInput{
     override getDefaultTimeoutBehavior(): { playerStateGetter: () => PlayerStateInput; animationLength: number; } {
         return {
             playerStateGetter: () => new IdleState(this.keybinds, this.dir),
-            animationLength: getCycleTime(this.playerState)
+            animationLength: getAnimationLoopDuration(this.playerState)
         }
     }
 }
@@ -136,12 +136,12 @@ export class JumpingState extends PlayerStateInput{
         return null;
     }
 
-    override getDefaultTimeoutBehavior(): { playerStateGetter: () => PlayerStateInput; animationLength: number; } {
-        return {
-            playerStateGetter: () => new FallingState(this.keybinds, this.dir),
-            animationLength: getCycleTime(this.playerState)
-        }
-    }
+    // override getDefaultTimeoutBehavior(): { playerStateGetter: () => PlayerStateInput; animationLength: number; } {
+    //     return {
+    //         playerStateGetter: () => new FallingState(this.keybinds, this.dir),
+    //         animationLength: getAnimationLoopDuration(this.playerState)
+    //     }
+    // }
 }
 
 export class FallingState extends PlayerStateInput{
