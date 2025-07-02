@@ -68,7 +68,7 @@ export const ANIMATION_DETAILS: AnimationDetails = {
 	Setting: {
 		maxFrame: 6,
 		mapRow: 7,
-        fps:14
+        fps:10
 	},
 	Spiking: {
 		maxFrame: 8,
