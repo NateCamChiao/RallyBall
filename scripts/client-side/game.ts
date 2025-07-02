@@ -62,7 +62,7 @@ export class Game{
         this.lastTimeStamp = -1;
         this.setUpKeyListeners();
         this.findScalingUnit(canvas);
-        this.ctx.font = PLAYER_ANIMATION.NAME_CONST.NAME_RATIO_TO_SCALING_UNIT * this.scalingUnit + "px san-serif"
+        this.ctx.font = "bold " + PLAYER_ANIMATION.NAME_CONST.NAME_RATIO_TO_SCALING_UNIT * this.scalingUnit + "px monospace"
         this.updateGame(0);
         this.addPlayers(PLAYERTYPE.REAL, "john");
     }
