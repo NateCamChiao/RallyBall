@@ -137,7 +137,7 @@ export class PlayerStateInputHandler{
             return this.stateDurationTimerID = null;
         }
         this.stateDurationTimerID = setTimeout(
-            () => this.updatePlayerState(new IdleState(this.keybindMap, currentState.dir)),
+            () => {this.updatePlayerState(animationData.playerStateGetter())},
             animationData.animationLength
         );
     }

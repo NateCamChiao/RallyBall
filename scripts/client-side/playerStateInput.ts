@@ -3,7 +3,7 @@ import { ClientInputData, DIRECTION, getCycleTime, KeybindMap, PlayerStates } fr
 interface PlayerStateInputLogic{
     playerState: PlayerStates;
     onInput: (inputData: ClientInputData) => PlayerStateInput | null;
-    getDefaultTimeoutBehavior: () => {playerState: PlayerStateInput | null, animationLength: number}
+    getDefaultTimeoutBehavior: () => {playerStateGetter: () => PlayerStateInput, animationLength: number}
 }
 export abstract class PlayerStateInput implements PlayerStateInputLogic{
     abstract playerState: PlayerStates;
@@ -18,9 +18,9 @@ export abstract class PlayerStateInput implements PlayerStateInputLogic{
 
         return null;
     }
-    getDefaultTimeoutBehavior(): {playerState: PlayerStateInput | null, animationLength: number} {
+    getDefaultTimeoutBehavior(): {playerStateGetter: () => PlayerStateInput, animationLength: number} {
         return {
-            playerState: new IdleState(this.keybinds, this.dir),
+            playerStateGetter: () => new IdleState(this.keybinds, this.dir),
             animationLength: Infinity
         };
     }
@@ -28,13 +28,18 @@ export abstract class PlayerStateInput implements PlayerStateInputLogic{
 }
 export class IdleState extends PlayerStateInput{
     playerState = PlayerStates.Idle;
+    lastKey: string;
+    constructor(keybinds: KeybindMap, direction: DIRECTION, lastkey = ""){
+        super(keybinds, direction);
+        this.lastKey = lastkey;
+    }
     onInput(inputData: ClientInputData): PlayerStateInput | null{
         let {keysDown, keysUp, keysHeld} = inputData;
         console.log(keysHeld);
         if(keysHeld.has(this.keybinds.left)){
             return new RunningState(this.keybinds, DIRECTION.LEFT);
         }
-        else if(keysHeld.has(this.keybinds.right)){
+        if(keysHeld.has(this.keybinds.right)){
             return new RunningState(this.keybinds, DIRECTION.RIGHT);
         }
         if(keysHeld.has(this.keybinds.down)){
@@ -74,9 +79,9 @@ export class PassingState extends PlayerStateInput{
         }
         return null;
     }
-    override getDefaultTimeoutBehavior(){
+    override getDefaultTimeoutBehavior(): { playerStateGetter: () => PlayerStateInput; animationLength: number; } {
         return {
-            playerState: new IdleState(this.keybinds, this.dir),
+            playerStateGetter: () => new IdleState(this.keybinds, this.dir),
             animationLength: getCycleTime(this.playerState)
         }
     }
@@ -99,9 +104,9 @@ export class SettingState extends PlayerStateInput{
         }
         return null;
     }
-    override getDefaultTimeoutBehavior(): { playerState: PlayerStateInput | null; animationLength: number; } {
+    override getDefaultTimeoutBehavior(): { playerStateGetter: () => PlayerStateInput; animationLength: number; } {
         return {
-            playerState: new IdleState(this.keybinds, this.dir),
+            playerStateGetter: () => new IdleState(this.keybinds, this.dir),
             animationLength: getCycleTime(this.playerState)
         }
     }
@@ -111,6 +116,7 @@ export class JumpingState extends PlayerStateInput{
     playerState = PlayerStates.Jumping;
     onInput(inputData: ClientInputData): PlayerStateInput | null{
         let {keysDown, keysUp, keysHeld} = inputData;
+        let isOnGround: boolean;
         console.log(keysHeld);
         if(keysHeld.has(this.keybinds.left)){
             //long spike
@@ -124,12 +130,15 @@ export class JumpingState extends PlayerStateInput{
             //sharp spike
             return new PassingState(this.keybinds, this.dir);
         }
+        if(keysHeld.has(this.keybinds.up)){
+            //quick jump
+        }
         return null;
     }
 
-    override getDefaultTimeoutBehavior(): { playerState: PlayerStateInput | null; animationLength: number; } {
+    override getDefaultTimeoutBehavior(): { playerStateGetter: () => PlayerStateInput; animationLength: number; } {
         return {
-            playerState: new FallingState(this.keybinds, this.dir),
+            playerStateGetter: () => new FallingState(this.keybinds, this.dir),
             animationLength: getCycleTime(this.playerState)
         }
     }
@@ -137,24 +146,16 @@ export class JumpingState extends PlayerStateInput{
 
 export class FallingState extends PlayerStateInput{
     playerState = PlayerStates.Falling;
+    constructor(keybinds: KeybindMap, dir: DIRECTION){
+        super(keybinds, dir);
+    }
     onInput(inputData: ClientInputData): PlayerStateInput | null{
-        let {keysDown, keysUp, keysHeld} = inputData;
-        console.log(keysHeld);
-        if(keysHeld.has(this.keybinds.left)){
-            return new RunningState(this.keybinds, DIRECTION.LEFT);
-        }
-        else if(keysHeld.has(this.keybinds.right)){
-            return new RunningState(this.keybinds, DIRECTION.RIGHT);
-        }
-        if(keysHeld.has(this.keybinds.down)){
-            return new PassingState(this.keybinds, this.dir);
-        }
         return null;
     }
-    getDefaultTimeoutBehavior(): { playerState: PlayerStateInput | null; animationLength: number; } {
-        let timeUntilLanding = 0;
+    getDefaultTimeoutBehavior(): { playerStateGetter: () => PlayerStateInput; animationLength: number; } {
+        let timeUntilLanding = 1000;//TODO change this later 
         return {
-            playerState: new IdleState(this.keybinds, this.dir),
+            playerStateGetter: () => new IdleState(this.keybinds, this.dir),
             animationLength: timeUntilLanding
         }
     }
