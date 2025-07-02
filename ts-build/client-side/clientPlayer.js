@@ -1,4 +1,6 @@
-import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, PlayerStates, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
+import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, PlayerStates, SCALING_UNIT_TO_PLAYER_SIZE, defaultKeybinds } from "./constants.js";
+import { IdleState } from "./playerStateInput.js";
+import { PositionFunctions } from "./positionFunctions.js";
 export class PlayerRenderer {
     //render logic members
     name; //16 character max
@@ -24,14 +26,20 @@ export class PlayerRenderer {
         this.playerSize = playerSize;
         this.name = name;
     }
+    changeState(newState, dir, startDate) {
+        this.initialPosition = PositionFunctions[this.playerState](this.initialPosition, this.dir, Date.now() - this.startDate).coords;
+        this.playerState = newState;
+        this.dir = dir;
+        this.startDate = startDate;
+    }
     updateScalingUnit(scalingunit) {
         this.playerSize = scalingunit * SCALING_UNIT_TO_PLAYER_SIZE;
     }
-    calculateClientCoords(direction) {
+    calculateClientCoords() {
         let { x, y } = this.initialPosition;
         let timeElapsed = Date.now() - this.startDate;
         //todo plug into fn(initialPos, t)
-        // console.log(PositionFunctions[this.playerState](this.initialPosition, direction, timeElapsed));
+        // console.log(PositionFunctions[this.playerState](this.initialPosition, this.dir, timeElapsed));
         return this.serverToClientCoords(x, y);
     }
     render(deltatime) {
@@ -46,7 +54,7 @@ export class PlayerRenderer {
             frame = freezeFrame ?? 0;
         }
         // console.log(frame, frameLength)
-        let coords = this.calculateClientCoords(this.dir);
+        let coords = this.calculateClientCoords();
         this.ctx.save();
         let playerSize;
         this.ctx.translate(coords.x + this.playerSize / 2, coords.y + this.playerSize / 2);
@@ -68,23 +76,43 @@ export class PlayerRenderer {
         this.name = name;
     }
 }
-export class IdleState {
-    onInput(inputData) {
-        console.log(inputData.keysHeld);
-        return null;
-    }
-}
 export class PlayerStateInputHandler {
-    playerState;
-    constructor(playerState = new IdleState()) {
-        this.playerState = playerState;
+    state;
+    keybindMap;
+    stateDurationTimerID; //id of setTimout
+    stateChangeCallback;
+    constructor(keybindings = defaultKeybinds, stateChangeCallback, playerState = new IdleState(keybindings, DIRECTION.LEFT)) {
+        this.state = playerState;
+        this.keybindMap = keybindings;
+        this.stateChangeCallback = stateChangeCallback;
+        this.stateDurationTimerID = null;
+        //setup timer (only matters if state has finite length)
+        this.setDurationTimer(this.state);
     }
     onInput(inputData) {
-        let newState = this.playerState.onInput(inputData);
+        let newState = this.state.onInput(inputData);
         if (newState != null) {
-            this.playerState = newState;
+            this.updatePlayerState(newState);
         }
     }
+    setDurationTimer(currentState) {
+        //clear existing timer
+        if (this.stateDurationTimerID != null) {
+            clearTimeout(this.stateDurationTimerID);
+        }
+        let animationData = currentState.getDefaultTimeoutBehavior();
+        if (animationData.animationLength == Infinity) {
+            return this.stateDurationTimerID = null;
+        }
+        this.stateDurationTimerID = setTimeout(() => this.updatePlayerState(new IdleState(this.keybindMap, currentState.dir)), animationData.animationLength);
+    }
+    updatePlayerState(newState) {
+        this.state = newState;
+        this.setDurationTimer(newState);
+        // this.stateDurationTimer = getCycleTime(this.state.playerState);
+        this.stateChangeCallback(this.state.playerState, this.state.dir, Date.now());
+    }
+    //returns method to call when key events fire
     getCallback() {
         return this.onInput.bind(this);
     }
@@ -98,8 +126,11 @@ export class ClientPlayer {
     constructor(playerType, ctx, playerSpriteMap, coordConvertingFn, playerSize, name = "") {
         this.name = name;
         this.playerRenderer = new PlayerRenderer(ctx, DIRECTION.LEFT, { x: 30, y: 63 }, 0, playerSpriteMap, coordConvertingFn, playerSize, PlayerStates.Idle, name);
-        this.inputLogicHandler = new PlayerStateInputHandler();
+        this.inputLogicHandler = new PlayerStateInputHandler(defaultKeybinds, this.updateState.bind(this));
         this.playerType = playerType;
+    }
+    updateState(newPlayerState, directon, startDate = Date.now()) {
+        this.playerRenderer.changeState(newPlayerState, directon, startDate);
     }
     getInputCallback() {
         return this.inputLogicHandler.getCallback().bind(this);

@@ -1,3 +1,4 @@
+export const debugMode = false;
 export var PlayerStates;
 (function (PlayerStates) {
     PlayerStates["Idle"] = "Idle";
@@ -81,7 +82,14 @@ export const ANIMATION_DETAILS = {
         maxFrame: 7,
         mapRow: 9,
         fps: 0
-    },
+    }
+};
+export const getCycleTime = (key) => {
+    let animationData = ANIMATION_DETAILS[key];
+    if (animationData.fps == 0 || animationData.fps == Infinity) {
+        return Infinity;
+    }
+    return 1000 / animationData.fps * (animationData.maxFrame - 1);
 };
 export const PERFECT_SCALING_RATIO = 1.8;
 export const SCALING_UNIT_TO_PLAYER_SIZE = 0.17; //multiply by scaling unit to get player size
@@ -117,3 +125,15 @@ export var PLAYERTYPE;
     PLAYERTYPE[PLAYERTYPE["AI"] = 2] = "AI";
     PLAYERTYPE[PLAYERTYPE["DUMMY"] = 3] = "DUMMY";
 })(PLAYERTYPE || (PLAYERTYPE = {}));
+export const defaultKeybinds = {
+    "up": "w",
+    "down": "s",
+    "left": "a",
+    "right": "d"
+};
+export const secondaryKeybinds = {
+    "up": "ArrowUp",
+    "down": "ArrowDown",
+    "left": "ArrowLeft",
+    "right": "ArrowRight"
+};
