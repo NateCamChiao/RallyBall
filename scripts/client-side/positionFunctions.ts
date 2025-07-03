@@ -23,15 +23,20 @@ export class PositionFunctions{
     }
     static Running(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         let secondsPassed = t / 1000;
-        let newPosition: Coordinates = initialPosition;
-        let maxPositionX = dir == DIRECTION.LEFT ? SERVER.netPos.x + SERVER.netPos.w + SERVER.player.size :SERVER.netPos.x - SERVER.player.size;
-        newPosition.x = secondsPassed * SERVER.player.runningSpeed + initialPosition.x;
+        let newPosition: Coordinates = {x:0, y: initialPosition.y};
+        let maxPositionX = dir == DIRECTION.LEFT ? SERVER.netPos.bottom.x + SERVER.netPos.bottom.w + SERVER.player.size : SERVER.netPos.bottom.x - SERVER.player.size;
+        newPosition.x = secondsPassed * SERVER.player.runningSpeed;
+        if(dir == DIRECTION.LEFT){
+            newPosition.x = -newPosition.x;
+        }
+        newPosition.x += initialPosition.x;
         if(dir == DIRECTION.LEFT && initialPosition.x > maxPositionX && t > this.timeFromDist(initialPosition.x - maxPositionX, SERVER.player.runningSpeed)){
 
         }
         else if(dir == DIRECTION.RIGHT && initialPosition.x < maxPositionX && t < this.timeFromDist(initialPosition.x - maxPositionX, SERVER.player.runningSpeed)){
 
         }
+        console.log(newPosition, "calculated", initialPosition)
         return {
             coords: newPosition,
             endBehavior: { time: Infinity, newState: null }

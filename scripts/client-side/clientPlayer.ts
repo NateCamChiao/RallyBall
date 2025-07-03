@@ -52,11 +52,8 @@ export class PlayerRenderer{
         this.scalingUnit = scalingunit;
     }
     calculateClientCoords(): Coordinates{
-        let {x, y} = this.initialPosition;
         let timeElapsed = Date.now() - this.startDate;
-        
-        //todo plug into fn(initialPos, t)
-        console.log(PositionFunctions[this.playerState](this.initialPosition, this.dir, timeElapsed).coords.x);
+        let {x, y} = PositionFunctions[this.playerState](this.initialPosition, this.dir, timeElapsed).coords;
         return this.serverToClientCoords(x, y);
     }
     render(deltatime: number){
@@ -173,7 +170,7 @@ export class ClientPlayer{
     playerState: PlayerStates = PlayerStates.Idle;
     constructor(playerType: PLAYERTYPE, ctx: CanvasRenderingContext2D, playerSpriteMap: any, coordConvertingFn: CoordConversionFn, scalingUnit: number, name: string = ""){
         this.name = name;
-        this.playerRenderer = new PlayerRenderer(ctx, DIRECTION.LEFT, {x: 30, y: 63}, 0, playerSpriteMap, coordConvertingFn, scalingUnit, PlayerStates.Idle, name);
+        this.playerRenderer = new PlayerRenderer(ctx, DIRECTION.LEFT, {x: 40, y: 63}, 0, playerSpriteMap, coordConvertingFn, scalingUnit, PlayerStates.Idle, name);
         this.inputLogicHandler = new PlayerStateInputHandler(defaultKeybinds, this.updateState.bind(this));
         this.playerType = playerType;
     }
