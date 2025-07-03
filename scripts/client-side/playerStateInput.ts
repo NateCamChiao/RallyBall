@@ -35,7 +35,6 @@ export class IdleState extends PlayerStateInput{
     }
     onInput(inputData: ClientInputData): PlayerStateInput | null{
         let {keysDown, keysUp, keysHeld} = inputData;
-        console.log(keysHeld);
         if(keysHeld.has(this.keybinds.left)){
             return new RunningState(this.keybinds, DIRECTION.LEFT);
         }
@@ -61,9 +60,14 @@ export class RunningState extends PlayerStateInput{
     }
     onInput(inputData: ClientInputData): PlayerStateInput | null{
         let {keysDown, keysUp, keysHeld} = inputData;
-        console.log(keysHeld);
         if(!keysHeld.has(this.keybinds.left) && !keysHeld.has(this.keybinds.right)){
             return new IdleState(this.keybinds, this.dir);
+        }
+        if(keysHeld.has(this.keybinds.left) && this.dir == DIRECTION.RIGHT){
+            return new RunningState(this.keybinds, DIRECTION.LEFT);
+        }
+        if(keysHeld.has(this.keybinds.right) && this.dir == DIRECTION.LEFT){
+            return new RunningState(this.keybinds, DIRECTION.RIGHT);
         }
         return null;
     }
@@ -117,7 +121,6 @@ export class JumpingState extends PlayerStateInput{
     onInput(inputData: ClientInputData): PlayerStateInput | null{
         let {keysDown, keysUp, keysHeld} = inputData;
         let isOnGround: boolean;
-        console.log(keysHeld);
         if(keysHeld.has(this.keybinds.left)){
             //long spike
             // return new RunningState(this.keybinds, DIRECTION.LEFT);
