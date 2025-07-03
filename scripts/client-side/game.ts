@@ -1,5 +1,5 @@
 import { ClientPlayer, PlayerRenderer } from "./clientPlayer.js";
-import { debugMode, DIRECTION, PERFECT_SCALING_RATIO, PLAYER_ANIMATION, PLAYERTYPE, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
+import { debugMode, DIRECTION, PERFECT_SCALING_RATIO, PLAYER_ANIMATION, PLAYERTYPE, SCALING_UNIT_TO_PLAYER_SIZE, SERVER } from "./constants.js";
 import { InputHandler } from "./inputHandler.js";
 import { ConnectionHandler, RealServerHandler, FakeServerHandler } from "./connections.js";
 
@@ -68,7 +68,7 @@ export class Game{
     }
 
     addPlayers(playerType: PLAYERTYPE, name: string){
-        let length: number = this.playerList.push(new ClientPlayer(playerType, this.ctx, this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE, name));
+        let length: number = this.playerList.push(new ClientPlayer(playerType, this.ctx, this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit, name));
         if(playerType == PLAYERTYPE.REAL){
             this.inputHandler.addEventCallback(this.playerList[length - 1].getInputCallback().bind(this.playerList[length - 1]));
         }
@@ -137,8 +137,11 @@ export class Game{
             netDims.h
         );
         this.renderPlayers(deltatime);
-        if(debugMode)
+        if(debugMode){
             this.visualizeViewport();
+            this.ctx.strokeRect(SERVER.netPos.bottom.x * this.scalingUnit, SERVER.netPos.bottom.y * this.scalingUnit, SERVER.netPos.bottom.w * this.scalingUnit, SERVER.netPos.bottom.h * this.scalingUnit);
+            this.ctx.strokeRect(SERVER.netPos.top.x * this.scalingUnit, SERVER.netPos.top.y * this.scalingUnit, SERVER.netPos.top.w * this.scalingUnit, SERVER.netPos.top.h * this.scalingUnit);
+        }
         // drawClouds();
         this.ctx.translate(-this.camera.x, -this.camera.y); // restore translation
         this.ctx.beginPath();

@@ -1,4 +1,4 @@
-export const debugMode = false;
+export const debugMode = CSSFontFeatureValuesRule;
 export interface Coordinates{
 	x: number,
     y: number
@@ -139,10 +139,19 @@ export const SERVER = {
 		runningSpeed: 20// per milli
 	},
 	netPos: { // server coords
-		x: 0,
-		y: 0,
-		w: 0,
-		h: 0
+		bottom: {
+			x: 95 / 200,
+			y: 75 / 100,
+			w: 10 / 200,
+			h: 20 / 100
+		},
+		top: {
+			x: 98 / 200,
+			y: 72.5 / 100,
+			w: 4 / 200,
+			h: 2.5 / 100
+		}
+		
 	}
 }
 
