@@ -1,4 +1,4 @@
-import {DIRECTION, Coordinates, PlayerStates, SERVER} from "./constants";
+import {DIRECTION, Coordinates, PlayerStates, SERVER} from "./constants.js";
 
 interface PositionData{
     coords: Coordinates;
@@ -9,6 +9,12 @@ interface PositionData{
 }
 
 export class PositionFunctions{
+    static timeFromDist(distance: number, distPerSec: number): number{
+        if(distPerSec == 0){
+            return 0;
+        }
+        return 1 / distPerSec * Math.abs(distance);
+    }
     static Idle(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         return {
             coords: initialPosition,
@@ -16,15 +22,14 @@ export class PositionFunctions{
         }
     }
     static Running(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
+        let secondsPassed = t / 1000;
         let newPosition: Coordinates = initialPosition;
         let maxPositionX = dir == DIRECTION.LEFT ? SERVER.netPos.x + SERVER.netPos.w + SERVER.player.size :SERVER.netPos.x - SERVER.player.size;
-        if(dir == DIRECTION.LEFT && initialPosition.x > maxPositionX){
+        newPosition.x = secondsPassed * SERVER.player.runningSpeed + initialPosition.x;
+        if(dir == DIRECTION.LEFT && initialPosition.x > maxPositionX && t > this.timeFromDist(initialPosition.x - maxPositionX, SERVER.player.runningSpeed)){
 
         }
-        else if(dir == DIRECTION.RIGHT && initialPosition.x < maxPositionX){
-
-        }
-        else{
+        else if(dir == DIRECTION.RIGHT && initialPosition.x < maxPositionX && t < this.timeFromDist(initialPosition.x - maxPositionX, SERVER.player.runningSpeed)){
 
         }
         return {
