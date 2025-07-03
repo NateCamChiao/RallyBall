@@ -1,4 +1,4 @@
-import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStates, ClientRenderData, SCALING_UNIT_TO_PLAYER_SIZE, ClientInputData, PLAYERTYPE, AnimationDetails, KeybindMap, defaultKeybinds, getAnimationLoopDuration, secondaryKeybinds, debugMode } from "./constants.js";
+import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStates, ClientRenderData, SCALING_UNIT_TO_PLAYER_SIZE, ClientInputData, PLAYERTYPE, AnimationDetails, KeybindMap, defaultKeybinds, getAnimationLoopDuration, secondaryKeybinds, debugMode, SERVER } from "./constants.js";
 import { IdleState, PlayerStateInput } from "./playerStateInput.js";
 import { PositionFunctions } from "./positionFunctions.js";
 
@@ -18,7 +18,7 @@ export class PlayerRenderer{
     ctx: CanvasRenderingContext2D;
     spriteMap: any;
     readonly animationDetails: AnimationDetails;
-    playerSize: number;
+    scalingUnit: number;
     constructor(
         ctx: CanvasRenderingContext2D, 
         dir: DIRECTION, 
@@ -26,7 +26,7 @@ export class PlayerRenderer{
         startDate: number, 
         spriteMap: any, 
         coordConvertingFunction: CoordConversionFn,
-        playerSize: number,
+        scalingUnit: number,
         playerState = PlayerStates.Idle,
         name: string = ""
     ){
@@ -39,7 +39,7 @@ export class PlayerRenderer{
         this.initialPosition = initialPosition;
         this.animationDetails = ANIMATION_DETAILS;
         this.playerState = playerState;
-        this.playerSize = playerSize;
+        this.scalingUnit = scalingUnit;
         this.name = name;
     }
     changeState(newState: PlayerStates, dir: DIRECTION, startDate: number){
@@ -49,14 +49,14 @@ export class PlayerRenderer{
         this.startDate = startDate;
     }
     updateScalingUnit(scalingunit: number){
-        this.playerSize = scalingunit * SCALING_UNIT_TO_PLAYER_SIZE;
+        this.scalingUnit = scalingunit;
     }
     calculateClientCoords(): Coordinates{
         let {x, y} = this.initialPosition;
         let timeElapsed = Date.now() - this.startDate;
         
         //todo plug into fn(initialPos, t)
-        // console.log(PositionFunctions[this.playerState](this.initialPosition, this.dir, timeElapsed));
+        console.log(PositionFunctions[this.playerState](this.initialPosition, this.dir, timeElapsed).coords.x);
         return this.serverToClientCoords(x, y);
     }
     render(deltatime: number){
@@ -86,8 +86,8 @@ export class PlayerRenderer{
         let coords = this.calculateClientCoords();
         this.ctx.save();
         
-        let playerSize;
-        this.ctx.translate(coords.x + this.playerSize / 2, coords.y + this.playerSize / 2);
+        let playerSize = this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE;
+        this.ctx.translate(coords.x + playerSize / 2, coords.y + playerSize / 2);
         if(this.dir == DIRECTION.LEFT){
             this.ctx.scale(-1, 1);
         }
@@ -98,19 +98,19 @@ export class PlayerRenderer{
             mapRow * PLAYER_ANIMATION.FRAME_WIDTH,
             PLAYER_ANIMATION.FRAME_WIDTH,
             PLAYER_ANIMATION.FRAME_WIDTH,
-            -this.playerSize / 2,
-            -this.playerSize / 2,
-            this.playerSize,
-            this.playerSize
+            -playerSize / 2,
+            -playerSize / 2,
+            playerSize,
+            playerSize
         );
         if(debugMode){
-            this.ctx.strokeRect(-this.playerSize / 2, -this.playerSize / 2, this.playerSize, this.playerSize);
+            this.ctx.strokeRect(-playerSize / 2, -playerSize / 2, playerSize, playerSize);
         }
         this.ctx.restore();
         //draw nametag
         if(this.name.length > 0){
             this.ctx.fillStyle = "black";
-            this.ctx.fillText(this.name, coords.x + this.playerSize / 2 + this.playerSize * PLAYER_ANIMATION.NAME_CONST.LEFT_AMOUNT_BY_PLAYER_SIZE, coords.y + this.playerSize * PLAYER_ANIMATION.NAME_CONST.DOWN_AMOUNT_BY_PLAYER_SIZE);
+            this.ctx.fillText(this.name, coords.x + playerSize / 2 + playerSize * PLAYER_ANIMATION.NAME_CONST.LEFT_AMOUNT_BY_PLAYER_SIZE, coords.y + playerSize * PLAYER_ANIMATION.NAME_CONST.DOWN_AMOUNT_BY_PLAYER_SIZE);
         }
     }
     setName(name: string){
@@ -171,9 +171,9 @@ export class ClientPlayer{
     playerRenderer: PlayerRenderer;
     inputLogicHandler: PlayerStateInputHandler;
     playerState: PlayerStates = PlayerStates.Idle;
-    constructor(playerType: PLAYERTYPE, ctx: CanvasRenderingContext2D, playerSpriteMap: any, coordConvertingFn: CoordConversionFn, playerSize: number, name: string = ""){
+    constructor(playerType: PLAYERTYPE, ctx: CanvasRenderingContext2D, playerSpriteMap: any, coordConvertingFn: CoordConversionFn, scalingUnit: number, name: string = ""){
         this.name = name;
-        this.playerRenderer = new PlayerRenderer(ctx, DIRECTION.LEFT, {x: 30, y: 63}, 0, playerSpriteMap, coordConvertingFn, playerSize, PlayerStates.Idle, name);
+        this.playerRenderer = new PlayerRenderer(ctx, DIRECTION.LEFT, {x: 30, y: 63}, 0, playerSpriteMap, coordConvertingFn, scalingUnit, PlayerStates.Idle, name);
         this.inputLogicHandler = new PlayerStateInputHandler(defaultKeybinds, this.updateState.bind(this));
         this.playerType = playerType;
     }
