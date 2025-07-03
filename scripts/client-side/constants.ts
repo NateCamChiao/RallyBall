@@ -135,9 +135,10 @@ export const PLAYER_ANIMATION = {
 }
 export const SERVER = {
 	player: {
-		size: 0,
+		size: 34 / 200,
 		runningSpeed: 20// per milli
 	},
+	groundY: 80,
 	netPos: { // server coords
 		bottom: {
 			x: 95 / 200,
