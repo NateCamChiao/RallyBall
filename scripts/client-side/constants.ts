@@ -53,7 +53,7 @@ export const ANIMATION_DETAILS: AnimationDetails = {
 	Running: {
 		maxFrame: 8,
 		mapRow: 0,
-        fps:16
+        fps:13
 	},
 	Passing: {
 		maxFrame: 7,
@@ -136,7 +136,7 @@ export const PLAYER_ANIMATION = {
 export const SERVER = {
 	player: {
 		size: 34 / 200,
-		runningSpeed: 20// per milli
+		runningSpeed: 60// per milli
 	},
 	groundY: 80,
 	netPos: { // server coords
