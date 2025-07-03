@@ -1,4 +1,4 @@
-import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStates, ClientRenderData, SCALING_UNIT_TO_PLAYER_SIZE, ClientInputData, PLAYERTYPE, AnimationDetails, KeybindMap, defaultKeybinds, getAnimationLoopDuration, secondaryKeybinds } from "./constants.js";
+import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStates, ClientRenderData, SCALING_UNIT_TO_PLAYER_SIZE, ClientInputData, PLAYERTYPE, AnimationDetails, KeybindMap, defaultKeybinds, getAnimationLoopDuration, secondaryKeybinds, debugMode } from "./constants.js";
 import { IdleState, PlayerStateInput } from "./playerStateInput.js";
 import { PositionFunctions } from "./positionFunctions.js";
 
@@ -103,7 +103,7 @@ export class PlayerRenderer{
             this.playerSize,
             this.playerSize
         );
-        if(true){
+        if(debugMode){
             this.ctx.strokeRect(-this.playerSize / 2, -this.playerSize / 2, this.playerSize, this.playerSize);
         }
         this.ctx.restore();
