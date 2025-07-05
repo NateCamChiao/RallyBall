@@ -170,7 +170,7 @@ export class ClientPlayer{
     playerState: PlayerStates = PlayerStates.Idle;
     constructor(playerType: PLAYERTYPE, ctx: CanvasRenderingContext2D, playerSpriteMap: any, coordConvertingFn: CoordConversionFn, scalingUnit: number, name: string = ""){
         this.name = name;
-        this.playerRenderer = new PlayerRenderer(ctx, DIRECTION.LEFT, {x: 40, y: 63}, 0, playerSpriteMap, coordConvertingFn, scalingUnit, PlayerStates.Idle, name);
+        this.playerRenderer = new PlayerRenderer(ctx, DIRECTION.LEFT, {x: 140, y: 63}, 0, playerSpriteMap, coordConvertingFn, scalingUnit, PlayerStates.Idle, name);
         this.inputLogicHandler = new PlayerStateInputHandler(defaultKeybinds, this.updateState.bind(this));
         this.playerType = playerType;
     }

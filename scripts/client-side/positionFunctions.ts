@@ -7,7 +7,27 @@ interface PositionData{
         newState: PlayerStates | null
     }
 }
+export class PositionFunctionUtils{
+    static calculateGravity(initialPosition: Coordinates, initialVelocity: {vx: number, vy: number}, time: number, groundLevel = SERVER.player.floorLevel, gravity = SERVER.player.gravity): {coords: Coordinates, landingTime: number}{
+        //y = -(g/2) * t^2 + v_yi * t + y_i
+        //x = v_xi * t
+        //offset so that floor level is zero
+        //find coordinates, then offset y
+        //find time till landing w/ modified quadratic (gets second result)
+        //check if distance is greater than net coords
+        //if collides then find timeTillCollision = timeFromDist(difference, speed)
+            //y doesnt change but x is bound to net limit
+        //undo floor level offset to get back to original position
 
+        return {
+            coords: {
+                x:0,
+                y:0
+            },
+            landingTime: 0
+        }
+    }
+}
 export class PositionFunctions{
     static timeFromDist(distance: number, distPerSec: number): number{
         if(distPerSec == 0){
@@ -24,19 +44,19 @@ export class PositionFunctions{
     static Running(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         let secondsPassed = t / 1000;
         let newPosition: Coordinates = {x:0, y: initialPosition.y};
-        let maxPositionX = dir == DIRECTION.LEFT ? SERVER.netPos.bottom.x + SERVER.netPos.bottom.w + SERVER.player.size : SERVER.netPos.bottom.x - SERVER.player.size;
+        let maxPositionX = dir == DIRECTION.LEFT ? SERVER.netPos.bottom.x + SERVER.netPos.bottom.w : SERVER.netPos.bottom.x - SERVER.player.size;
         newPosition.x = secondsPassed * SERVER.player.runningSpeed;
         if(dir == DIRECTION.LEFT){
             newPosition.x = -newPosition.x;
         }
+        maxPositionX *= 200;
         newPosition.x += initialPosition.x;
-        if(dir == DIRECTION.LEFT && initialPosition.x > maxPositionX && t > this.timeFromDist(initialPosition.x - maxPositionX, SERVER.player.runningSpeed)){
-
+        if(dir == DIRECTION.LEFT && initialPosition.x > maxPositionX && t > this.timeFromDist(initialPosition.x - maxPositionX, SERVER.player.runningSpeed) * 1000){
+            newPosition.x = maxPositionX;
         }
-        else if(dir == DIRECTION.RIGHT && initialPosition.x < maxPositionX && t < this.timeFromDist(initialPosition.x - maxPositionX, SERVER.player.runningSpeed)){
-
+        else if(dir == DIRECTION.RIGHT && initialPosition.x < maxPositionX && t > this.timeFromDist(initialPosition.x - maxPositionX, SERVER.player.runningSpeed) * 1000){
+            newPosition.x = maxPositionX;
         }
-        console.log(newPosition, "calculated", initialPosition)
         return {
             coords: newPosition,
             endBehavior: { time: Infinity, newState: null }
