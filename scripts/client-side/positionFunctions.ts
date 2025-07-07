@@ -34,6 +34,9 @@ export class PositionFunctionUtils{
             landingTime: landingTime
         }
     }
+    static millisToSec(milliseconds: number): number{
+        return milliseconds / 1000;
+    }
 }
 export class PositionFunctions{
     static timeFromDist(distance: number, distPerSec: number): number{
@@ -49,10 +52,9 @@ export class PositionFunctions{
         }
     }
     static Running(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
-        let secondsPassed = t / 1000;
         let newPosition: Coordinates = {x:0, y: initialPosition.y};
         let maxPositionX = dir == DIRECTION.LEFT ? SERVER.netPos.bottom.x + SERVER.netPos.bottom.w : SERVER.netPos.bottom.x - SERVER.player.size;
-        newPosition.x = secondsPassed * SERVER.player.runningSpeed;
+        newPosition.x = PositionFunctionUtils.millisToSec(t) * SERVER.player.runningSpeed;
         if(dir == DIRECTION.LEFT){
             newPosition.x = -newPosition.x;
         }
@@ -72,9 +74,8 @@ export class PositionFunctions{
     static Jumping(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
         let newPosition: Coordinates = {x:initialPosition.x, y: initialPosition.y};
         const jumpTime = 1 / ANIMATION_DETAILS.Jumping.fps * 7;
-        let secondsPassed = t / 1000;
-        let trajectoryData = PositionFunctionUtils.calculateTrajectory(initialPosition, {vx: 0, vy: SERVER.player.jumpForce}, secondsPassed - jumpTime, SERVER.player.floorLevel, SERVER.player.gravity);
-        if(secondsPassed >= jumpTime){
+        let trajectoryData = PositionFunctionUtils.calculateTrajectory(initialPosition, {vx: 0, vy: SERVER.player.jumpForce}, PositionFunctionUtils.millisToSec(t) - jumpTime, SERVER.player.floorLevel, SERVER.player.gravity);
+        if(PositionFunctionUtils.millisToSec(t) >= jumpTime){
             newPosition = trajectoryData.coords;
         }
         return {
@@ -113,8 +114,10 @@ export class PositionFunctions{
         }
     }
     static Falling(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
+        let newPosition = PositionFunctionUtils.calculateTrajectory(initialPosition, {vx: 0, vy: 0}, PositionFunctionUtils.millisToSec(t), SERVER.player.floorLevel, SERVER.player.gravity);
+        console.log(initialPosition, newPosition.coords);
         return {
-            coords: initialPosition,
+            coords: newPosition.coords,
             endBehavior: { time: Infinity, newState: null }
         }
     }
