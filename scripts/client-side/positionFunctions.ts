@@ -1,4 +1,4 @@
-import {DIRECTION, Coordinates, PlayerStates, SERVER} from "./constants.js";
+import {DIRECTION, Coordinates, PlayerStates, SERVER, getAnimationLoopDuration, ANIMATION_DETAILS} from "./constants.js";
 
 interface PositionData{
     coords: Coordinates;
@@ -8,23 +8,30 @@ interface PositionData{
     }
 }
 export class PositionFunctionUtils{
-    static calculateGravity(initialPosition: Coordinates, initialVelocity: {vx: number, vy: number}, time: number, groundLevel = SERVER.player.floorLevel, gravity = SERVER.player.gravity): {coords: Coordinates, landingTime: number}{
-        //y = -(g/2) * t^2 + v_yi * t + y_i
-        //x = v_xi * t
-        //offset so that floor level is zero
-        //find coordinates, then offset y
-        //find time till landing w/ modified quadratic (gets second result)
-        //check if distance is greater than net coords
-        //if collides then find timeTillCollision = timeFromDist(difference, speed)
-            //y doesnt change but x is bound to net limit
-        //undo floor level offset to get back to original position
-
+    static getLandingTime(a: number, b: number, c: number): number{
+        let discriminant = b * b - 4 * a * c;
+        if(discriminant <= 0 || a == 0) 
+            return 0;
+        const root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+        const root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+        return Math.max(root1, root2);
+    }
+    static calculateTrajectory(initialPosition: Coordinates, initialVelocity: {vx: number, vy: number}, time: number, groundLevel = SERVER.player.floorLevel, gravity = SERVER.player.gravity): {coords: Coordinates, landingTime: number}{
+        let landingTime = this.getLandingTime(1/2 * gravity, initialVelocity.vy, initialPosition.y - groundLevel);
+        let newPosition = {
+            x: initialVelocity.vx * time + initialPosition.x,
+            y: initialPosition.y + initialVelocity.vy * time + 1/2 * gravity * time * time
+        }
+        if(time > landingTime){
+            newPosition.x = initialPosition.x + initialVelocity.vx * landingTime;
+            newPosition.y = groundLevel;
+        }
         return {
             coords: {
-                x:0,
-                y:0
+                x: newPosition.x,
+                y: newPosition.y
             },
-            landingTime: 0
+            landingTime: landingTime
         }
     }
 }
@@ -63,8 +70,15 @@ export class PositionFunctions{
         }
     }
     static Jumping(initialPosition: Coordinates, dir: DIRECTION, t: any): PositionData{
+        let newPosition: Coordinates = {x:initialPosition.x, y: initialPosition.y};
+        const jumpTime = 1 / ANIMATION_DETAILS.Jumping.fps * 7;
+        let secondsPassed = t / 1000;
+        let trajectoryData = PositionFunctionUtils.calculateTrajectory(initialPosition, {vx: 0, vy: SERVER.player.jumpForce}, secondsPassed - jumpTime, SERVER.player.floorLevel, SERVER.player.gravity);
+        if(secondsPassed >= jumpTime){
+            newPosition = trajectoryData.coords;
+        }
         return {
-            coords: initialPosition,
+            coords: newPosition,
             endBehavior: { time: Infinity, newState: null }
         }
     }

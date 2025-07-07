@@ -69,6 +69,9 @@ export class RunningState extends PlayerStateInput{
         if(keysHeld.has(this.keybinds.right) && this.dir == DIRECTION.LEFT){
             return new RunningState(this.keybinds, DIRECTION.RIGHT);
         }
+        if(keysHeld.has(this.keybinds.up)){
+            return new JumpingState(this.keybinds, this.dir, true);
+        }
         return null;
     }
 }
@@ -118,6 +121,11 @@ export class SettingState extends PlayerStateInput{
 
 export class JumpingState extends PlayerStateInput{
     playerState = PlayerStates.Jumping;
+    hasMomentum: boolean;
+    constructor(keybinds: KeybindMap, dir: DIRECTION, hasMomentum = false){
+        super(keybinds, dir);
+        this.hasMomentum = hasMomentum;
+    }
     onInput(inputData: ClientInputData): PlayerStateInput | null{
         let {keysDown, keysUp, keysHeld} = inputData;
         let isOnGround: boolean;
@@ -131,7 +139,7 @@ export class JumpingState extends PlayerStateInput{
         }
         if(keysHeld.has(this.keybinds.down)){
             //sharp spike
-            return new PassingState(this.keybinds, this.dir);
+            return new SpikingState(this.keybinds, this.dir);
         }
         if(keysHeld.has(this.keybinds.up)){
             //quick jump
@@ -160,6 +168,19 @@ export class FallingState extends PlayerStateInput{
         return {
             playerStateGetter: () => new IdleState(this.keybinds, this.dir),
             animationLength: timeUntilLanding
+        }
+    }
+}
+
+export class SpikingState extends PlayerStateInput{
+    playerState = PlayerStates.Spiking;
+    constructor(keybinds: KeybindMap, dir: DIRECTION){
+        super(keybinds, dir);
+    }
+    getDefaultTimeoutBehavior(): { playerStateGetter: () => PlayerStateInput; animationLength: number; } {
+        return {
+            playerStateGetter: () => new FallingState(this.keybinds, this.dir),
+            animationLength: getAnimationLoopDuration(this.playerState)
         }
     }
 }

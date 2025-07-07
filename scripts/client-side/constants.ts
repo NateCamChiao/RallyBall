@@ -137,8 +137,9 @@ export const SERVER = {
 	player: {
 		size: 34 / 200,
 		runningSpeed: 60,// per milli
-		gravity: 2,
-		floorLevel: 70
+		gravity: 80,
+		floorLevel: 63,
+		jumpForce: -70
 	},
 	groundY: 80,
 	netPos: { // server coords
