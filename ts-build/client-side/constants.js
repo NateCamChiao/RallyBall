@@ -1,4 +1,4 @@
-export const debugMode = false;
+export const debugMode = true;
 export var PlayerStates;
 (function (PlayerStates) {
     PlayerStates["Idle"] = "Idle";
@@ -35,22 +35,23 @@ export const ANIMATION_DETAILS = {
     Running: {
         maxFrame: 8,
         mapRow: 0,
-        fps: 16
+        fps: 13
     },
     Passing: {
         maxFrame: 7,
         mapRow: 2,
-        fps: 50
+        fps: 20
     },
     Jumping: {
         maxFrame: 8,
         mapRow: 3,
-        fps: 12
+        fps: 12,
+        freezeFrame: 7
     },
     Setting: {
         maxFrame: 6,
         mapRow: 7,
-        fps: 14
+        fps: 10
     },
     Spiking: {
         maxFrame: 8,
@@ -84,7 +85,7 @@ export const ANIMATION_DETAILS = {
         fps: 0
     }
 };
-export const getCycleTime = (key) => {
+export const getAnimationLoopDuration = (key) => {
     let animationData = ANIMATION_DETAILS[key];
     if (animationData.fps == 0 || animationData.fps == Infinity) {
         return Infinity;
@@ -102,6 +103,30 @@ export const PLAYER_ANIMATION = {
         NAME_RATIO_TO_SCALING_UNIT: 25 / 1638,
         LEFT_AMOUNT_BY_PLAYER_SIZE: -0.05,
         DOWN_AMOUNT_BY_PLAYER_SIZE: 0.15
+    }
+};
+export const SERVER = {
+    player: {
+        size: 34 / 200,
+        runningSpeed: 60, // per milli
+        gravity: 80,
+        floorLevel: 63,
+        jumpForce: -70
+    },
+    groundY: 80,
+    netPos: {
+        bottom: {
+            x: 95.5 / 200,
+            y: 70 / 100,
+            w: 9 / 200,
+            h: 20 / 100
+        },
+        top: {
+            x: 98 / 200,
+            y: 64 / 100,
+            w: 4 / 200,
+            h: 3.5 / 100
+        }
     }
 };
 export var DIRECTION;

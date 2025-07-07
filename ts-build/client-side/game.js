@@ -1,5 +1,5 @@
 import { ClientPlayer } from "./clientPlayer.js";
-import { debugMode, PERFECT_SCALING_RATIO, PLAYER_ANIMATION, PLAYERTYPE, SCALING_UNIT_TO_PLAYER_SIZE } from "./constants.js";
+import { debugMode, PERFECT_SCALING_RATIO, PLAYER_ANIMATION, PLAYERTYPE, SERVER } from "./constants.js";
 import { InputHandler } from "./inputHandler.js";
 import { FakeServerHandler } from "./connections.js";
 const GAMESTATE = {
@@ -56,12 +56,12 @@ export class Game {
         this.lastTimeStamp = -1;
         this.setUpKeyListeners();
         this.findScalingUnit(canvas);
-        this.ctx.font = PLAYER_ANIMATION.NAME_CONST.NAME_RATIO_TO_SCALING_UNIT * this.scalingUnit + "px san-serif";
+        this.ctx.font = "bold " + PLAYER_ANIMATION.NAME_CONST.NAME_RATIO_TO_SCALING_UNIT * this.scalingUnit + "px monospace";
         this.updateGame(0);
         this.addPlayers(PLAYERTYPE.REAL, "john");
     }
     addPlayers(playerType, name) {
-        let length = this.playerList.push(new ClientPlayer(playerType, this.ctx, this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE, name));
+        let length = this.playerList.push(new ClientPlayer(playerType, this.ctx, this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit, name));
         if (playerType == PLAYERTYPE.REAL) {
             this.inputHandler.addEventCallback(this.playerList[length - 1].getInputCallback().bind(this.playerList[length - 1]));
         }
@@ -112,8 +112,11 @@ export class Game {
         //net
         this.ctx.drawImage(this.assets.scene, 0, 0, 181, 943, this.canvas.width / 2 - netDims.w / 2, this.canvas.height - netDims.h, netDims.w, netDims.h);
         this.renderPlayers(deltatime);
-        if (debugMode)
+        if (debugMode) {
             this.visualizeViewport();
+            this.ctx.strokeRect(SERVER.netPos.bottom.x * this.scalingUnit, SERVER.netPos.bottom.y * this.scalingUnit / PERFECT_SCALING_RATIO + this.heightOffset, SERVER.netPos.bottom.w * this.scalingUnit, SERVER.netPos.bottom.h * this.scalingUnit);
+            this.ctx.strokeRect(SERVER.netPos.top.x * this.scalingUnit, SERVER.netPos.top.y * this.scalingUnit / PERFECT_SCALING_RATIO + this.heightOffset, SERVER.netPos.top.w * this.scalingUnit, SERVER.netPos.top.h * this.scalingUnit);
+        }
         // drawClouds();
         this.ctx.translate(-this.camera.x, -this.camera.y); // restore translation
         this.ctx.beginPath();
