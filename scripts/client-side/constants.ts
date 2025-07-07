@@ -1,4 +1,4 @@
-export const debugMode = CSSFontFeatureValuesRule;
+export const debugMode = true;
 export interface Coordinates{
 	x: number,
     y: number
