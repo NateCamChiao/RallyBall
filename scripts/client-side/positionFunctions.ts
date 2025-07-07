@@ -60,10 +60,10 @@ export class PositionFunctions{
         }
         maxPositionX *= 200;
         newPosition.x += initialPosition.x;
-        if(dir == DIRECTION.LEFT && initialPosition.x > maxPositionX && t > this.timeFromDist(initialPosition.x - maxPositionX, SERVER.player.runningSpeed) * 1000){
+        if(dir == DIRECTION.LEFT && initialPosition.x >= maxPositionX && t > this.timeFromDist(initialPosition.x - maxPositionX, SERVER.player.runningSpeed) * 1000){
             newPosition.x = maxPositionX;
         }
-        else if(dir == DIRECTION.RIGHT && initialPosition.x < maxPositionX && t > this.timeFromDist(initialPosition.x - maxPositionX, SERVER.player.runningSpeed) * 1000){
+        else if(dir == DIRECTION.RIGHT && initialPosition.x <= maxPositionX && t > this.timeFromDist(initialPosition.x - maxPositionX, SERVER.player.runningSpeed) * 1000){
             newPosition.x = maxPositionX;
         }
         return {
