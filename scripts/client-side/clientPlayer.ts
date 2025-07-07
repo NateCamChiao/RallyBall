@@ -79,7 +79,6 @@ export class PlayerRenderer{
             frame = freezeFrame;
         }
 
-       // console.log(frame, frameLength)
         let coords = this.calculateClientCoords();
         this.ctx.save();
         
