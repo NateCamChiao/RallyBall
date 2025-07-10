@@ -29,6 +29,11 @@ class InputHandler {
             keysHeld: this.keysHeld
         };
     }
+    onFocusout() {
+        for (let key of this.keysHeld) {
+            this.onKeyUp(new KeyboardEvent("keyup", { key: key }));
+        }
+    }
     addEventCallback(callbackFn) {
         this.callbackFnList.push(callbackFn);
     }

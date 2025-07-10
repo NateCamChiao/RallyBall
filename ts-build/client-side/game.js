@@ -197,5 +197,6 @@ export class Game {
     setUpKeyListeners() {
         document.addEventListener("keydown", e => this.inputHandler.onKeyDown(e));
         document.addEventListener("keyup", e => this.inputHandler.onKeyUp(e));
+        window.addEventListener("blur", e => this.inputHandler.onFocusout());
     }
 }
