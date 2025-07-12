@@ -89,11 +89,13 @@ export class PlayerStateInputHandler {
     keybindMap;
     stateDurationTimerID; //id of setTimout
     stateChangeCallback;
-    constructor(keybindings = defaultKeybinds, stateChangeCallback, playerState = new IdleState(keybindings, DIRECTION.LEFT)) {
+    motionSupplier;
+    constructor(keybindings = defaultKeybinds, stateChangeCallback, motionSupplier, playerState = new IdleState(keybindings, DIRECTION.LEFT, motionSupplier)) {
         this.state = playerState;
         this.keybindMap = keybindings;
         this.stateChangeCallback = stateChangeCallback;
         this.stateDurationTimerID = null;
+        this.motionSupplier = motionSupplier;
         //setup timer (only matters if state has finite length)
         this.setDurationTimer(this.state);
     }
@@ -117,7 +119,6 @@ export class PlayerStateInputHandler {
     updatePlayerState(newState) {
         this.state = newState;
         this.setDurationTimer(newState);
-        // this.stateDurationTimer = getCycleTime(this.state.playerState);
         this.stateChangeCallback(this.state.playerState, this.state.dir, Date.now());
     }
     //returns method to call when key events fire
@@ -131,13 +132,22 @@ export class ClientPlayer {
     playerRenderer;
     inputLogicHandler;
     playerState = PlayerStates.Idle;
+    position = { x: 140, y: 63 };
+    velocity = { vx: 0, vy: 0 };
     constructor(playerType, ctx, playerSpriteMap, coordConvertingFn, scalingUnit, name = "") {
         this.name = name;
-        this.playerRenderer = new PlayerRenderer(ctx, DIRECTION.LEFT, { x: 140, y: 63 }, 0, playerSpriteMap, coordConvertingFn, scalingUnit, PlayerStates.Idle, name);
-        this.inputLogicHandler = new PlayerStateInputHandler(defaultKeybinds, this.updateState.bind(this));
+        this.playerRenderer = new PlayerRenderer(ctx, DIRECTION.LEFT, { x: 140, y: 63 }, Date.now(), playerSpriteMap, coordConvertingFn, scalingUnit, PlayerStates.Idle, name);
+        this.inputLogicHandler = new PlayerStateInputHandler(defaultKeybinds, this.updateState.bind(this), this.getMotionSupplier.bind(this));
         this.playerType = playerType;
     }
+    getMotionSupplier() {
+        return {
+            position: this.position,
+            velocity: this.velocity
+        };
+    }
     updateState(newPlayerState, directon, startDate = Date.now()) {
+        this.position = PositionFunctions[this.playerState](this.position, directon, Date.now() - this.playerRenderer.startDate).coords;
         this.playerRenderer.changeState(newPlayerState, directon, startDate);
     }
     getInputCallback() {
