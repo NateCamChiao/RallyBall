@@ -139,8 +139,8 @@ export class Game{
         this.renderPlayers(deltatime);
         if(debugMode){
             this.visualizeViewport();
-            this.ctx.strokeRect(SERVER.netPos.bottom.x * this.scalingUnit, SERVER.netPos.bottom.y * this.scalingUnit / PERFECT_SCALING_RATIO +this.heightOffset, SERVER.netPos.bottom.w * this.scalingUnit, SERVER.netPos.bottom.h * this.scalingUnit);
-            this.ctx.strokeRect(SERVER.netPos.top.x * this.scalingUnit, SERVER.netPos.top.y * this.scalingUnit / PERFECT_SCALING_RATIO + this.heightOffset, SERVER.netPos.top.w * this.scalingUnit, SERVER.netPos.top.h * this.scalingUnit);
+            this.ctx.strokeRect(SERVER.netPos.bottom.x * this.scalingUnit + this.scalingWidthOffset, SERVER.netPos.bottom.y * this.scalingUnit / PERFECT_SCALING_RATIO +this.heightOffset, SERVER.netPos.bottom.w * this.scalingUnit, SERVER.netPos.bottom.h * this.scalingUnit);
+            this.ctx.strokeRect(SERVER.netPos.top.x * this.scalingUnit + this.scalingWidthOffset, SERVER.netPos.top.y * this.scalingUnit / PERFECT_SCALING_RATIO + this.heightOffset, SERVER.netPos.top.w * this.scalingUnit, SERVER.netPos.top.h * this.scalingUnit);
         }
         // drawClouds();
         this.ctx.translate(-this.camera.x, -this.camera.y); // restore translation
