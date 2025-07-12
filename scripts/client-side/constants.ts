@@ -7,6 +7,15 @@ export interface Velocity{
 	vx: number,
 	vy: number	
 }
+// export interface MotionSupplier{
+// 	position: Coordinates;
+// 	velocity: Velocity
+// }
+export type MotionData = {
+	position: Coordinates,
+	velocity: Velocity
+}
+export type MotionSupplier = () => MotionData;
 export enum PlayerStates {
 	Idle = "Idle",
 	Running = "Running",
