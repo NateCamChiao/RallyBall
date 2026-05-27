@@ -251,6 +251,7 @@ export class Game{
 
     resize(canvas: HTMLCanvasElement){
         this.findScalingUnit(canvas);
+        this.ctx.font = "bold " + PLAYER_ANIMATION.NAME_CONST.NAME_RATIO_TO_SCALING_UNIT * this.scalingUnit + "px monospace";
         this.drawScene(0);
     }
 
