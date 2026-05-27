@@ -13,6 +13,7 @@
         "lib": ["es2022", "dom", "dom.iterable"],
         "module": "ES6",
         "outDir": "ts-build",
+        "rootDir": "scripts"
         // "allowImportingTsExtensions": true,
     },
     "include": [
