@@ -134,6 +134,7 @@ export class JumpingState extends PlayerStateInput {
     }
     getDefaultTimeoutBehavior() {
         let timeBeforeJump = 1 / ANIMATION_DETAILS.Jumping.fps * 7;
+        //total time from start of jump to landing (including jump windup)
         let landingTime = PositionFunctionUtils.calculateTrajectory(this.motionSupplier().position, { vx: 0, vy: SERVER.player.jumpForce }, 0, SERVER.player.floorLevel, SERVER.player.gravity).landingTime + timeBeforeJump;
         console.log(this.motionSupplier(), PositionFunctionUtils.calculateTrajectory(this.motionSupplier().position, { vx: 0, vy: SERVER.player.jumpForce }, landingTime, SERVER.player.floorLevel, SERVER.player.gravity).coords.y);
         landingTime *= 1000; // convert from sec to millis
