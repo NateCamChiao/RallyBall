@@ -16,7 +16,7 @@ export type MotionData = {
 	velocity: Velocity
 }
 export type MotionSupplier = () => MotionData;
-export enum PlayerStates {
+export enum PlayerStateLabels {
 	Idle = "Idle",
 	Running = "Running",
 	Passing = "Passing", 
@@ -200,7 +200,7 @@ export type PlayerStateData = {
 	dir: DIRECTION,
 	initalPosition: Coordinates,
 	startDate: Date,
-	playerState: PlayerStates
+	playerState: PlayerStateLabels
 }
 
 export type GameStateData = {

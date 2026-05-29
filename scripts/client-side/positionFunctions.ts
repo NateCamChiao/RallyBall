@@ -1,10 +1,10 @@
-import {DIRECTION, Coordinates, PlayerStates, SERVER, getAnimationLoopDuration, ANIMATION_DETAILS} from "./constants.js";
+import {DIRECTION, Coordinates, PlayerStateLabels, SERVER, getAnimationLoopDuration, ANIMATION_DETAILS} from "./constants.js";
 
 interface PositionData{
     coords: Coordinates;
     endBehavior: {
         time: number, //sec
-        newState: PlayerStates | null
+        newState: PlayerStateLabels | null
     }
 }
 export class PositionFunctionUtils{
