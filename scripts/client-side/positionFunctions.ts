@@ -49,10 +49,10 @@ export class PositionFunctionUtils{
         let maxPositionX = dir == DIRECTION.LEFT ? SERVER.netPos.bottom.x + SERVER.netPos.bottom.w - 0.03 : SERVER.netPos.bottom.x - SERVER.player.size + 0.03;
         maxPositionX *= 200;
         let newPosition = currentPosition;
-        if(dir == DIRECTION.LEFT && currentPosition.x <= maxPositionX && initialPosition.x > maxPositionX){
+        if(dir == DIRECTION.LEFT && currentPosition.x <= maxPositionX && initialPosition.x >= maxPositionX){
             newPosition.x = maxPositionX;
         }
-        else if(dir == DIRECTION.RIGHT && currentPosition.x >= maxPositionX && initialPosition.x < maxPositionX){
+        else if(dir == DIRECTION.RIGHT && currentPosition.x >= maxPositionX && initialPosition.x <= maxPositionX){
             newPosition.x = maxPositionX;
         }
         return newPosition;
