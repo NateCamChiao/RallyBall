@@ -1,4 +1,4 @@
-import { GameStateData, ClientInputData } from "constants.js";
+import { GameStateData, ClientInputData } from "./constants.js";
 import { Game } from "./game";
 export interface ConnectionHandler{
     onClientData:(inputData: ClientInputData) => void;

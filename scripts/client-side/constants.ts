@@ -11,11 +11,11 @@ export interface Velocity{
 // 	position: Coordinates;
 // 	velocity: Velocity
 // }
-export type MotionData = {
+export type PhysicsState = {
 	position: Coordinates,
 	velocity: Velocity
 }
-export type MotionSupplier = () => MotionData;
+export type MotionSupplier = () => PhysicsState;
 export enum PlayerStateLabels {
 	Idle = "Idle",
 	Running = "Running",
@@ -148,7 +148,11 @@ export const SERVER = {
 		runningSpeed: 60,// per milli
 		gravity: 80,
 		floorLevel: 63,
-		jumpForce: -70
+		jumpForce: -70,
+		jumpingForwardSpeed:15
+	},
+	ball: {
+		size: 3/200
 	},
 	groundY: 80,
 	netPos: { // server coords
