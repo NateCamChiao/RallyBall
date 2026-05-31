@@ -1,5 +1,5 @@
 import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStateLabels, ClientRenderData, SCALING_UNIT_TO_PLAYER_SIZE, ClientInputData, PLAYERTYPE, AnimationDetails, KeybindMap, defaultKeybinds, getAnimationLoopDuration, secondaryKeybinds, debugMode, SERVER, Velocity, MotionSupplier, PhysicsState } from "./constants.js";
-import { IdleState, PlayerState } from "./playerStateInput.js";
+import { IdleState, PlayerState } from "./playerStates.js";
 import { PositionFunctions } from "./positionFunctions.js";
 
 
@@ -191,8 +191,9 @@ export class BallController{
     }[];
     radius: number;
     serverToClientCoords: CoordConversionFn;
+    playerList: ClientPlayer[];
 
-    constructor(ctx: CanvasRenderingContext2D, ballImage: any, initalCoord: Coordinates, intialVelocity: Velocity, startDate: any, serverToClientCoords: CoordConversionFn, scalingUnit: number){
+    constructor(ctx: CanvasRenderingContext2D, ballImage: any, initalCoord: Coordinates, intialVelocity: Velocity, startDate: any, serverToClientCoords: CoordConversionFn, scalingUnit: number, players: ClientPlayer[]){
         this.ctx = ctx;
         this.ballImage = ballImage;
         this.initialPos = initalCoord;
@@ -201,6 +202,7 @@ export class BallController{
         this.radius = scalingUnit * 0.015;
         this.physicsEvents = [];
         this.serverToClientCoords = serverToClientCoords;
+        this.playerList = players;
     }
 
     addPhysicsEvent(eventTimestamp: number, eventData: PhysicsState){
@@ -231,6 +233,13 @@ export class BallController{
         
         
     }
+
+    /**
+     * 1. loop through players and take all ball interacting states into account
+     * 2. calculate time until collision given initial condition (-1 if won't collide at current moment)
+     * 3. take lowest time and then repeat with new initial condition
+     * 4. exit if ball hits ground
+     */
 
     triggerPhysicsEvent(){
         console.log("running event")
