@@ -1,5 +1,5 @@
-import { ClientPlayer, PlayerRenderer } from "./clientPlayer.js";
-import { debugMode, DIRECTION, PERFECT_SCALING_RATIO, PLAYER_ANIMATION, PLAYERTYPE, SCALING_UNIT_TO_PLAYER_SIZE, SERVER } from "./constants.js";
+import { BallController, ClientPlayer, PlayerRenderer } from "./clientPlayer.js";
+import { ClientInputData, Coordinates, debugMode, DIRECTION, PERFECT_SCALING_RATIO, PLAYER_ANIMATION, PLAYERTYPE, SCALING_UNIT_TO_PLAYER_SIZE, SERVER } from "./constants.js";
 import { InputHandler } from "./inputHandler.js";
 import { ConnectionHandler, RealServerHandler, FakeServerHandler } from "./connections.js";
 
@@ -18,11 +18,6 @@ let clientCamera = {
         }
     },
 }
-let clientBall = {
-    x: 0,
-    y: 0,
-    r: 40,
-}
 
 export class Game{
     //rendering members
@@ -35,7 +30,7 @@ export class Game{
     //game state members
     state: number;
     camera: { x: number; y: number; currentPosition(): { cameraX: number; cameraY: number; }; };
-    ball: { x: number; y: number; r: number; };
+    ball: BallController;
     playerList: ClientPlayer[];
 
     inputHandler: any;
@@ -53,25 +48,48 @@ export class Game{
 
         this.state = gameState;
         this.camera = clientCamera;
-        this.ball = clientBall;
+        
         this.inputHandler = new InputHandler(5);
         this.playerList = [];
         this.connectionHandler = connectionHandler;
-
+        
         this.stopUpdating = false;
         this.lastTimeStamp = -1;
         this.setUpKeyListeners();
         this.findScalingUnit(canvas);
         this.ctx.font = "bold " + PLAYER_ANIMATION.NAME_CONST.NAME_RATIO_TO_SCALING_UNIT * this.scalingUnit + "px monospace"
+        this.ball = new BallController(this.ctx, this.assets.scene, {x: 70, y:43}, {vx:0, vy:0}, Date.now(), this.serverToClientCoords.bind(this), this.scalingUnit);
+        this.inputHandler.addEventCallback((inputData: ClientInputData) => {
+            let {keysDown, keysUp, keysHeld} = inputData;
+            if(keysHeld.has("q")){
+                this.ball.addPhysicsEvent(Date.now() + 1000, {
+                        position:{
+                            x: this.ball.initialPos.x + 10, y: 10
+                        },
+                        velocity: {vx: 0, vy:0}
+                    });
+            }
+        })
         this.updateGame(0);
-        this.addPlayers(PLAYERTYPE.REAL, "john");
+        this.addPlayers(PLAYERTYPE.REAL);
+        this.addPlayers(PLAYERTYPE.REAL, {x: 30, y: 63}, "timmy");
+        this.createPhysicsChecker();
     }
 
-    addPlayers(playerType: PLAYERTYPE, name: string){
-        let length: number = this.playerList.push(new ClientPlayer(playerType, this.ctx, this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit, name));
+    addPlayers(playerType: PLAYERTYPE, position: Coordinates = {x: 140, y: 63}, name: string = "player"){
+        //new ClientPlayer(PLAYERTYPE.DUMMY, "Tony").addPlayerRenderer(this.ctx, this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit)
+        let length: number = this.playerList.push(new ClientPlayer(playerType, position, name).addPlayerRenderer(this.ctx, this.assets.player, this.serverToClientCoords.bind(this), this.scalingUnit));
         if(playerType == PLAYERTYPE.REAL){
-            this.inputHandler.addEventCallback(this.playerList[length - 1].getInputCallback().bind(this.playerList[length - 1]));
+            //give inputHandler a function to call on inputs
+            this.inputHandler.addEventCallback(this.playerList[length - 1].onInput.bind(this.playerList[length - 1]));
         }
+    }
+
+    createPhysicsChecker(){
+        setInterval(() => {
+            this.playerList.forEach(player => player.state.updatePhysics())
+        })
+        // this.playerList.forEach(player => player.updatePhysics());
     }
 
     updateGame(currentTime: number){
@@ -97,11 +115,11 @@ export class Game{
             this.heightOffset = 0;
         }
 
-        this.playerList.forEach(clientPlayer => clientPlayer.playerRenderer.updateScalingUnit(this.scalingUnit));
+        this.playerList.forEach(clientPlayer => clientPlayer.playerRenderer?.updateScalingUnit(this.scalingUnit));
     }
 
     renderPlayers(deltatime: number){
-        this.playerList.forEach(player => player.playerRenderer.render(deltatime));
+        this.playerList.forEach(player => player.playerRenderer?.render(deltatime));
     }
 
     serverToClientCoords(x: number, y: number){
@@ -142,7 +160,9 @@ export class Game{
             this.ctx.strokeRect(SERVER.netPos.bottom.x * this.scalingUnit + this.scalingWidthOffset, SERVER.netPos.bottom.y * this.scalingUnit / PERFECT_SCALING_RATIO +this.heightOffset, SERVER.netPos.bottom.w * this.scalingUnit, SERVER.netPos.bottom.h * this.scalingUnit);
             this.ctx.strokeRect(SERVER.netPos.top.x * this.scalingUnit + this.scalingWidthOffset, SERVER.netPos.top.y * this.scalingUnit / PERFECT_SCALING_RATIO + this.heightOffset, SERVER.netPos.top.w * this.scalingUnit, SERVER.netPos.top.h * this.scalingUnit);
         }
+
         // drawClouds();
+        this.ball.render();
         this.ctx.translate(-this.camera.x, -this.camera.y); // restore translation
         this.ctx.beginPath();
         this.ctx.moveTo(this.scalingWidthOffset, 0);
