@@ -1,7 +1,8 @@
-import { BallController, ClientPlayer, PlayerRenderer } from "./clientPlayer.js";
+import { ClientPlayer, PlayerRenderer } from "./clientPlayer.js";
 import { ClientInputData, Coordinates, debugMode, DIRECTION, PERFECT_SCALING_RATIO, PLAYER_ANIMATION, PLAYERTYPE, SCALING_UNIT_TO_PLAYER_SIZE, SERVER } from "./constants.js";
 import { InputHandler } from "./inputHandler.js";
 import { ConnectionHandler, RealServerHandler, FakeServerHandler } from "./connections.js";
+import { BallController } from "./ball.js";
 
 
 const GAMESTATE = {
@@ -58,21 +59,21 @@ export class Game{
         this.setUpKeyListeners();
         this.findScalingUnit(canvas);
         this.ctx.font = "bold " + PLAYER_ANIMATION.NAME_CONST.NAME_RATIO_TO_SCALING_UNIT * this.scalingUnit + "px monospace"
-        this.ball = new BallController(this.ctx, this.assets.scene, {x: 70, y:43}, {vx:0, vy:0}, Date.now(), this.serverToClientCoords.bind(this), this.scalingUnit);
         this.inputHandler.addEventCallback((inputData: ClientInputData) => {
             let {keysDown, keysUp, keysHeld} = inputData;
             if(keysHeld.has("q")){
                 this.ball.addPhysicsEvent(Date.now() + 1000, {
-                        position:{
-                            x: this.ball.initialPos.x + 10, y: 10
-                        },
-                        velocity: {vx: 0, vy:0}
-                    });
+                    position:{
+                        x: this.ball.initialPos.x + 10, y: 10
+                    },
+                    velocity: {vx: 0, vy:0}
+                });
             }
         })
         this.updateGame(0);
         this.addPlayers(PLAYERTYPE.REAL);
         this.addPlayers(PLAYERTYPE.REAL, {x: 30, y: 63}, "timmy");
+        this.ball = new BallController(this.ctx, this.assets.scene, {x: 70, y:43}, {vx:0, vy:0}, Date.now(), this.serverToClientCoords.bind(this), this.scalingUnit, this.playerList);
         this.createPhysicsChecker();
     }
 
