@@ -10,7 +10,6 @@ export class PlayerRenderer{
     //render logic members
     name: string;//16 character max
     startDate: number;
-    initialPosition: Coordinates;
     playerState: PlayerState;
     serverToClientCoords: CoordConversionFn;
     //assets and rendering members
@@ -21,8 +20,6 @@ export class PlayerRenderer{
     constructor(
         playerState: PlayerState,
         ctx: CanvasRenderingContext2D, 
-        dir: DIRECTION, 
-        initialPosition: Coordinates, 
         startDate: number, 
         spriteMap: any, 
         coordConvertingFunction: CoordConversionFn,
@@ -31,10 +28,8 @@ export class PlayerRenderer{
     ){
         this.ctx = ctx;
         this.startDate = startDate;
-        
         this.spriteMap = spriteMap;
         this.serverToClientCoords = coordConvertingFunction;
-        this.initialPosition = initialPosition;
         this.animationDetails = ANIMATION_DETAILS;
         this.playerState = playerState
         this.scalingUnit = scalingUnit;
@@ -137,7 +132,7 @@ export class ClientPlayer{
     }
 
     addPlayerRenderer(ctx: CanvasRenderingContext2D, playerSpriteMap: any, coordConvertingFn: CoordConversionFn, scalingUnit: number): ClientPlayer{
-        this.playerRenderer = new PlayerRenderer(this.state, ctx, DIRECTION.LEFT, this.lastPosition, Date.now(), playerSpriteMap, coordConvertingFn, scalingUnit, this.name);
+        this.playerRenderer = new PlayerRenderer(this.state, ctx, Date.now(), playerSpriteMap, coordConvertingFn, scalingUnit, this.name);
         return this;
     }
     getMotionSupplier(){
