@@ -1,4 +1,4 @@
-import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStateLabels, ClientRenderData, SCALING_UNIT_TO_PLAYER_SIZE, ClientInputData, PLAYERTYPE, AnimationDetails, KeybindMap, defaultKeybinds, getAnimationLoopDuration, secondaryKeybinds, debugMode, SERVER, Velocity, MotionSupplier } from "./constants.js";
+import { ANIMATION_DETAILS, DIRECTION, PLAYER_ANIMATION, Coordinates, PlayerStateLabels, ClientRenderData, SCALING_UNIT_TO_PLAYER_SIZE, ClientInputData, PLAYERTYPE, AnimationDetails, KeybindMap, defaultKeybinds, getAnimationLoopDuration, secondaryKeybinds, debugMode, SERVER, Velocity, MotionSupplier, PhysicsState } from "./constants.js";
 import { IdleState, PlayerState } from "./playerStateInput.js";
 import { PositionFunctions } from "./positionFunctions.js";
 
@@ -9,10 +9,9 @@ type CoordConversionFn = (x: number, y: number) => Coordinates;
 export class PlayerRenderer{
     //render logic members
     name: string;//16 character max
-    dir: DIRECTION;
     startDate: number;
     initialPosition: Coordinates;
-    playerState: PlayerStateLabels;
+    playerState: PlayerState;
     serverToClientCoords: CoordConversionFn;
     //assets and rendering members
     ctx: CanvasRenderingContext2D;
@@ -20,6 +19,7 @@ export class PlayerRenderer{
     readonly animationDetails: AnimationDetails;
     scalingUnit: number;
     constructor(
+        playerState: PlayerState,
         ctx: CanvasRenderingContext2D, 
         dir: DIRECTION, 
         initialPosition: Coordinates, 
@@ -27,25 +27,22 @@ export class PlayerRenderer{
         spriteMap: any, 
         coordConvertingFunction: CoordConversionFn,
         scalingUnit: number,
-        playerState = PlayerStateLabels.Idle,
         name: string = ""
     ){
         this.ctx = ctx;
-        this.dir = dir;
         this.startDate = startDate;
         
         this.spriteMap = spriteMap;
         this.serverToClientCoords = coordConvertingFunction;
         this.initialPosition = initialPosition;
         this.animationDetails = ANIMATION_DETAILS;
-        this.playerState = playerState;
+        this.playerState = playerState
         this.scalingUnit = scalingUnit;
         this.name = name;
     }
-    changeState(newState: PlayerStateLabels, dir: DIRECTION, startDate: number){
-        this.initialPosition = PositionFunctions[this.playerState](this.initialPosition, this.dir, Date.now() - this.startDate).coords;
+    changeState(newState: PlayerState,startDate: number){
+        // this.initialPosition = PositionFunctions[this.playerState](this.initialPosition, this.dir, Date.now() - this.startDate).coords;
         this.playerState = newState;
-        this.dir = dir;
         
         this.startDate = startDate;
     }
@@ -54,11 +51,13 @@ export class PlayerRenderer{
     }
     calculateClientCoords(): Coordinates{
         let timeElapsed = Date.now() - this.startDate;
-        let {x, y} = PositionFunctions[this.playerState](this.initialPosition, this.dir, timeElapsed).coords;
+        // let {x, y} = PositionFunctions[this.playerState.playerStateLabel](this.initialPosition, this.playerState.dir, timeElapsed).coords;
+        let {x, y} = this.playerState.getPhysicsState(timeElapsed).position;
+        
         return this.serverToClientCoords(x, y);
     }
     render(deltatime: number){
-        let { maxFrame, mapRow, fps, freezeFrame } = this.animationDetails[this.playerState];
+        let { maxFrame, mapRow, fps, freezeFrame } = this.animationDetails[this.playerState.playerStateLabel];
         //converts to frame length
         let frameLength;
         let animationLength = Date.now() - this.startDate;
@@ -76,7 +75,7 @@ export class PlayerRenderer{
             frame = freezeFrame ?? 0;
         }
         //if animation is longer than animation cycle duration
-        if(animationLength >= getAnimationLoopDuration(this.playerState) && freezeFrame != undefined){
+        if(animationLength >= getAnimationLoopDuration(this.playerState.playerStateLabel) && freezeFrame != undefined){
             frame = freezeFrame;
         }
 
@@ -85,7 +84,7 @@ export class PlayerRenderer{
         
         let playerSize = this.scalingUnit * SCALING_UNIT_TO_PLAYER_SIZE;
         this.ctx.translate(coords.x + playerSize / 2, coords.y + playerSize / 2);
-        if(this.dir == DIRECTION.LEFT){
+        if(this.playerState.dir == DIRECTION.LEFT){
             this.ctx.scale(-1, 1);
         }
 
@@ -118,36 +117,43 @@ export class PlayerRenderer{
 export class ClientPlayer{
     playerType: PLAYERTYPE;
     name: string;
-    playerRenderer: PlayerRenderer;
+    playerRenderer: PlayerRenderer | undefined;
     // inputLogicHandler: PlayerStateInputHandler;
-    playerState: PlayerStateLabels = PlayerStateLabels.Running;
-
     state: PlayerState;
     keybindMap: KeybindMap;
     stateDurationTimerID: number | null; //id of setTimout
 
-    position: Coordinates = {x: 140, y: 63};
-    velocity: Velocity = {vx: 0, vy: 0};
-    constructor(playerType: PLAYERTYPE, ctx: CanvasRenderingContext2D, playerSpriteMap: any, coordConvertingFn: CoordConversionFn, scalingUnit: number, name: string = ""){
+    lastPosition: Coordinates = {x: 140, y: 63};
+    lastVelocity: Velocity = {vx: 0, vy: 0};
+
+    startDate: number = -1;
+    constructor(playerType: PLAYERTYPE, position: Coordinates, name: string = ""){
         this.name = name;
-        this.playerRenderer = new PlayerRenderer(ctx, DIRECTION.LEFT, {x: 140, y: 63}, Date.now(), playerSpriteMap, coordConvertingFn, scalingUnit, PlayerStateLabels.Idle, name);
         this.playerType = playerType;
         this.keybindMap = defaultKeybinds;
         this.stateDurationTimerID = null;
-        this.state = new IdleState(this.keybindMap, DIRECTION.LEFT, this.getMotionSupplier.bind(this));
+        this.state = new IdleState(this.keybindMap, DIRECTION.LEFT, {position: position, velocity: {vx: 0, vy:0}});
+        // this.lastPosition = position;
+    }
+
+    addPlayerRenderer(ctx: CanvasRenderingContext2D, playerSpriteMap: any, coordConvertingFn: CoordConversionFn, scalingUnit: number): ClientPlayer{
+        this.playerRenderer = new PlayerRenderer(this.state, ctx, DIRECTION.LEFT, this.lastPosition, Date.now(), playerSpriteMap, coordConvertingFn, scalingUnit, this.name);
+        return this;
     }
     getMotionSupplier(){
         return {
-            position: this.position,
-            velocity: this.velocity
+            position: this.lastPosition,
+            velocity: this.lastVelocity
         }
     }
     updateState(newState: PlayerState, startDate = Date.now()){
         this.state = newState;
         this.setDurationTimer(newState);
-        this.position = PositionFunctions[this.state.playerState](this.position, this.state.dir, Date.now() - this.playerRenderer.startDate).coords;
         
-        this.playerRenderer.changeState(this.state.playerState, this.state.dir, startDate);
+        this.lastPosition = PositionFunctions[this.state.playerStateLabel](this.lastPosition, this.state.dir, Date.now() - this.startDate).coords;
+        
+        this.playerRenderer?.changeState(this.state, startDate);
+        this.startDate = startDate;
     }
 
     onInput(inputData: ClientInputData){
@@ -173,26 +179,85 @@ export class ClientPlayer{
         );
     }
 }
-class BallController{
+export class BallController{
     initialPos: Coordinates;
     init_V: Velocity;
     startDate: number;
     ctx: CanvasRenderingContext2D;
     ballImage: any;
+    physicsEvents: {
+        timestamp: number,
+        physicsState: PhysicsState
+    }[];
+    radius: number;
+    serverToClientCoords: CoordConversionFn;
 
-    constructor(ctx: CanvasRenderingContext2D, ballImage: any, initalCoord: Coordinates, intialVelocity: Velocity, startDate: any){
+    constructor(ctx: CanvasRenderingContext2D, ballImage: any, initalCoord: Coordinates, intialVelocity: Velocity, startDate: any, serverToClientCoords: CoordConversionFn, scalingUnit: number){
         this.ctx = ctx;
         this.ballImage = ballImage;
         this.initialPos = initalCoord;
         this.init_V = intialVelocity;
         this.startDate = startDate;
+        this.radius = scalingUnit * 0.015;
+        this.physicsEvents = [];
+        this.serverToClientCoords = serverToClientCoords;
     }
 
-    addPhysicsEvent(){
+    addPhysicsEvent(eventTimestamp: number, eventData: PhysicsState){
+        let currentTimestamp = Date.now();
+        if(currentTimestamp > eventTimestamp){
+            return;
+        }
+        // register physics events which can then be used to make a position fn
+        for(let i = 0; i < this.physicsEvents.length; i++){
+            if(this.physicsEvents[i].timestamp > eventTimestamp){
+                this.physicsEvents.splice(i, 0, {
+                    timestamp: eventTimestamp,
+                    physicsState: eventData
+                });
+                console.log("added event", eventTimestamp - currentTimestamp)
+                setTimeout(this.triggerPhysicsEvent, eventTimestamp - currentTimestamp)
+                return;
+            }
+        }
+        
+        this.physicsEvents.push({
+            timestamp: eventTimestamp,
+            physicsState: eventData
+        });
+        console.log("added event", eventTimestamp - currentTimestamp)
+
+        setTimeout(this.triggerPhysicsEvent, eventTimestamp - currentTimestamp)
+        
         
     }
 
-    render(){
+    triggerPhysicsEvent(){
+        console.log("running event")
+    }
 
+    calculatePosition(time: number): Coordinates{
+        
+        return {
+            x:0,
+            y:0
+        }
+    }
+
+    render(){
+        let x = this.initialPos.x;
+        let y = this.initialPos.y;
+        let position = this.serverToClientCoords(x,y);
+        this.ctx.drawImage(
+            this.ballImage,
+            456,
+			130,
+			235,
+			235,
+            position.x - this.radius,
+            position.y - this.radius,
+            this.radius * 2,
+            this.radius * 2
+        );
     }
 }
