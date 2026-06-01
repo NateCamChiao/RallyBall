@@ -18,12 +18,14 @@ class InputHandler{
         if(!this.keysHeld.has(event.key))
             this.keysHeld.add(event.key);
         this.callbackFnList.forEach(callback => callback(this.getKeyData()));
+        this.keysDown = [];
     }
     onKeyUp(event: KeyboardEvent){
-        this.keysUp.push(event.key);
         this.keysUp.shift();
+        this.keysUp.push(event.key);
         this.keysHeld.delete(event.key);
         this.callbackFnList.forEach(callback => callback(this.getKeyData()));
+        this.keysUp = [];
     }
     
     getKeyData(): ClientInputData{
