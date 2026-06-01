@@ -1,9 +1,9 @@
 import { ClientPlayer, CoordConversionFn } from "./clientPlayer";
 import { Coordinates, Velocity, PhysicsState } from "./constants";
+import { PositionFunctionUtils } from "./positionFunctions";
 
 export class BallController{
-    initialPos: Coordinates;
-    init_V: Velocity;
+    lastPhysicsState: PhysicsState;
     startDate: number;
     ctx: CanvasRenderingContext2D;
     ballImage: any;
@@ -18,13 +18,19 @@ export class BallController{
     constructor(ctx: CanvasRenderingContext2D, ballImage: any, initalCoord: Coordinates, intialVelocity: Velocity, startDate: any, serverToClientCoords: CoordConversionFn, scalingUnit: number, players: ClientPlayer[]){
         this.ctx = ctx;
         this.ballImage = ballImage;
-        this.initialPos = initalCoord;
-        this.init_V = intialVelocity;
+        this.lastPhysicsState = {
+            position: initalCoord,
+            velocity: intialVelocity
+        }
         this.startDate = startDate;
         this.radius = scalingUnit * 0.015;
         this.physicsEvents = [];
         this.serverToClientCoords = serverToClientCoords;
         this.playerList = players;
+    }
+
+    updatePhysicsEvents(){
+        
     }
 
     addPhysicsEvent(eventTimestamp: number, eventData: PhysicsState){
@@ -65,10 +71,11 @@ export class BallController{
 
     triggerPhysicsEvent(){
         console.log("running event")
+        
     }
 
     calculatePosition(time: number): Coordinates{
-        
+        // let trajectoryData = PositionFunctionUtils.calculateTrajectory()
         return {
             x:0,
             y:0
@@ -76,8 +83,8 @@ export class BallController{
     }
 
     render(){
-        let x = this.initialPos.x;
-        let y = this.initialPos.y;
+        let x = this.lastPhysicsState.position.x;
+        let y = this.lastPhysicsState.position.y;
         let position = this.serverToClientCoords(x,y);
         this.ctx.drawImage(
             this.ballImage,
