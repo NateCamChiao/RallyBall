@@ -52,7 +52,11 @@ export class PlayerRenderer{
         return this.serverToClientCoords(x, y);
     }
     render(deltatime: number){
-        let { maxFrame, mapRow, fps, freezeFrame } = this.animationDetails[this.playerState.playerStateLabel];
+        let { maxFrame, mapRow, fps, freezeFrame, initialFrame } = this.animationDetails[this.playerState.playerStateLabel];
+        let firstFrameIndex = 0;
+        if(initialFrame != undefined){
+            firstFrameIndex = initialFrame;
+        }
         //converts to frame length
         let frameLength;
         let animationLength = Date.now() - this.startDate;
@@ -63,7 +67,7 @@ export class PlayerRenderer{
         else{
             frameLength = 1000 / fps;
         }
-        let frame: number = Math.floor(animationLength / frameLength) % (maxFrame); // * (delta time) /  mod (maxFrames * )
+        let frame: number = Math.floor(animationLength / (frameLength)) % (maxFrame - firstFrameIndex) + firstFrameIndex; // * (delta time) /  mod (maxFrames * )
         // If can't divide by fps then use freezeFrame
         if(frameLength == Infinity){
             //zero if freezeFrame isn't available
@@ -145,7 +149,7 @@ export class ClientPlayer{
         this.state = newState;
         this.setDurationTimer(newState);
         
-        this.lastPosition = PositionFunctions[this.state.playerStateLabel](this.lastPosition, this.state.dir, Date.now() - this.startDate).coords;
+        // this.lastPosition = PositionFunctions[this.state.playerStateLabel](this.lastPosition, this.state.dir, Date.now() - this.startDate).coords;
         
         this.playerRenderer?.changeState(this.state, startDate);
         this.startDate = startDate;

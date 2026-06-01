@@ -21,6 +21,7 @@ export enum PlayerStateLabels {
 	Running = "Running",
 	Passing = "Passing", 
 	Jumping = "Jumping",
+	QuickJumping = "QuickJumping",
 	Setting = "Setting",
 	Spiking = "Spiking",
 	Blocking = "Blocking",
@@ -49,6 +50,7 @@ export type AnimationDetails = {
 		mapRow: number,
 		fps: number,
 		freezeFrame?: number
+		initialFrame?:number
 	}
 }
 
@@ -74,6 +76,14 @@ export const ANIMATION_DETAILS: AnimationDetails = {
 		mapRow: 3,
         fps:12,
 		freezeFrame: 7
+	},
+	QuickJumping: {
+		maxFrame: 8,
+		mapRow: 3,
+		// fps: 24,
+		fps: 18,
+		freezeFrame: 7,
+		initialFrame: 3
 	},
 	Setting: {
 		maxFrame: 6,
@@ -115,10 +125,14 @@ export const ANIMATION_DETAILS: AnimationDetails = {
 
 export const getAnimationLoopDuration = (key: string): number => {
 	let animationData = ANIMATION_DETAILS[key];
+	let firstFrameIndex = 0;
+	if(animationData.initialFrame != undefined){
+		firstFrameIndex = animationData.initialFrame;
+	}
 	if(animationData.fps == 0 || animationData.fps == Infinity){
 		return Infinity;
 	}
-	return 1000 / animationData.fps * (animationData.maxFrame - 1);
+	return 1000 / animationData.fps * (animationData.maxFrame - 1 - firstFrameIndex);
 }
 
 export type ClientRenderData = {
@@ -146,10 +160,12 @@ export const SERVER = {
 	player: {
 		size: 34 / 200,
 		runningSpeed: 60,// per milli
-		gravity: 80,
+		gravity: 90,
 		floorLevel: 63,
-		jumpForce: -70,
-		jumpingForwardSpeed:15
+		jumpForce: -60,
+		quickJumpForce: -50,
+		jumpingForwardSpeed:15,
+		quickJupingForwardSpeed: 10
 	},
 	ball: {
 		size: 3/200
