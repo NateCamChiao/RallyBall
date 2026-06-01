@@ -27,6 +27,13 @@ export abstract class PlayerState{
         return this.lastPhysicsState;
     }
 
+    getBallInteractionData(ballPhysicsState: PhysicsState, lastBallTimestamp: number): {newState: PhysicsState, timestamp: number}{
+        return {
+            newState: {position: {x:0, y:0}, velocity: {vx: 0, vy: 0}},
+            timestamp: -1 // -1 means there is not interaction
+        }
+    }
+
     getFinalPosition(): PhysicsState{
         return this.getPhysicsState(Date.now() - this.lastTimestamp);
     }
@@ -85,7 +92,10 @@ export class RunningState extends PlayerState{
             return new RunningState(this.keybinds, DIRECTION.RIGHT, this.getFinalPosition());
         }
         if(keysHeld.has(this.keybinds.up)){
-            return new JumpingState(this.keybinds, this.dir, this.getFinalPosition(), true);
+            return new JumpingState(this.keybinds, this.dir, this.getFinalPosition());
+        }
+        if(keysHeld.has(this.keybinds.down)){
+            return new PassingState(this.keybinds, this.dir, this.getFinalPosition());
         }
         return null;
     }
@@ -114,10 +124,14 @@ export class RunningState extends PlayerState{
 
 export class PassingState extends PlayerState{
     playerStateLabel = PlayerStateLabels.Passing;
+    hasReleasedPassBtn: boolean = false;
 
     onInput(inputData: ClientInputData): PlayerState | null {
         let {keysDown, keysUp, keysHeld} = inputData;
-        if(keysHeld.has(this.keybinds.down)){
+        if(keysUp.includes(this.keybinds.down)){
+            this.hasReleasedPassBtn = true;
+        }
+        if(keysHeld.has(this.keybinds.down) && this.hasReleasedPassBtn){
             return new SettingState(this.keybinds, this.dir, this.getFinalPosition());
         }
         return null;
@@ -157,20 +171,27 @@ export class SettingState extends PlayerState{
 
 export class JumpingState extends PlayerState{
     playerStateLabel = PlayerStateLabels.Jumping;
-    hasMomentum: boolean;
-    constructor(keybinds: KeybindMap, dir: DIRECTION,  lastPhysicsState: PhysicsState, hasMomentum = false){
+    canQuickJump: boolean;
+    quickJumpTime = 200; 
+    hasReleasedJumpBtn: boolean;
+    constructor(keybinds: KeybindMap, dir: DIRECTION,  lastPhysicsState: PhysicsState){
         super(keybinds, dir, lastPhysicsState);
-        this.hasMomentum = hasMomentum;
         this.lastTimestamp = Date.now();
         if(this.lastPhysicsState.velocity.vx != 0){
             this.lastPhysicsState.velocity.vx = Math.sign(this.lastPhysicsState.velocity.vx) * SERVER.player.jumpingForwardSpeed;
         }
         this.lastPhysicsState.velocity.vy = SERVER.player.jumpForce;
+        this.canQuickJump = true;
+        this.hasReleasedJumpBtn = false;
+        setTimeout(() => this.canQuickJump = false, this.quickJumpTime);
 
     }
     onInput(inputData: ClientInputData): PlayerState | null{
         let {keysDown, keysUp, keysHeld} = inputData;
-        let isOnGround: boolean;
+        let isOnGround = Date.now() - this.lastTimestamp < (1 / ANIMATION_DETAILS.Jumping.fps * 7) * 1000;
+        if(keysUp.includes(this.keybinds.up)){
+            this.hasReleasedJumpBtn = true;
+        }
         if(keysHeld.has(this.keybinds.left)){
             //long spike
             // return new RunningState(this.keybinds, DIRECTION.LEFT, this.getFinalPosition());
@@ -179,12 +200,13 @@ export class JumpingState extends PlayerState{
             //block
             // return new RunningState(this.keybinds, DIRECTION.RIGHT, this.getFinalPosition());
         }
-        if(keysHeld.has(this.keybinds.down)){
+        if(keysHeld.has(this.keybinds.down) && !isOnGround){
             //sharp spike
             return new SpikingState(this.keybinds, this.dir, this.getFinalPosition());
         }
-        if(keysHeld.has(this.keybinds.up)){
+        if(keysHeld.has(this.keybinds.up) && this.canQuickJump && this.hasReleasedJumpBtn){
             //quick jump
+            return new QuickJumpingState(this.keybinds, this.dir, this.getFinalPosition());
         }
         return null;
     }
@@ -219,6 +241,76 @@ export class JumpingState extends PlayerState{
         }
     }
 }
+
+export class QuickJumpingState extends PlayerState{
+    playerStateLabel = PlayerStateLabels.QuickJumping;
+    hasReleasedJumpBtn: boolean;
+    constructor(keybinds: KeybindMap, dir: DIRECTION,  lastPhysicsState: PhysicsState){
+        super(keybinds, dir, lastPhysicsState);
+        this.lastTimestamp = Date.now();
+        if(this.lastPhysicsState.velocity.vx != 0){
+            this.lastPhysicsState.velocity.vx = Math.sign(this.lastPhysicsState.velocity.vx) * SERVER.player.quickJupingForwardSpeed;
+        }
+        this.lastPhysicsState.velocity.vy = SERVER.player.quickJumpForce;
+        this.hasReleasedJumpBtn = false;
+    }
+    onInput(inputData: ClientInputData): PlayerState | null{
+        let {keysDown, keysUp, keysHeld} = inputData;
+        let isOnGround = Date.now() - this.lastTimestamp < (1 / ANIMATION_DETAILS.QuickJumping.fps * 4) * 1000;
+        if(keysUp.includes(this.keybinds.up)){
+            this.hasReleasedJumpBtn = true;
+        }
+        if(keysHeld.has(this.keybinds.left)){
+            //long spike
+            // return new RunningState(this.keybinds, DIRECTION.LEFT, this.getFinalPosition());
+        }
+        else if(keysHeld.has(this.keybinds.right)){
+            //block
+            // return new RunningState(this.keybinds, DIRECTION.RIGHT, this.getFinalPosition());
+        }
+        if(keysHeld.has(this.keybinds.down) && !isOnGround){
+            //sharp spike
+            return new SpikingState(this.keybinds, this.dir, this.getFinalPosition());
+        }
+        if(keysHeld.has(this.keybinds.up) && !isOnGround){
+            // jump set
+            return new SettingState(this.keybinds, this.dir, this.getFinalPosition());
+        }
+        return null;
+    }
+
+    getPhysicsState(timeElapsed: number): PhysicsState {
+        let newPosition: Coordinates = {x:this.lastPhysicsState.position.x, y: this.lastPhysicsState.position.y};
+        const jumpTime = 1 / ANIMATION_DETAILS.QuickJumping.fps * 4;
+        let trajectoryData = PositionFunctionUtils.calculateTrajectory(
+            this.lastPhysicsState, 
+            PositionFunctionUtils.millisToSec(timeElapsed) - jumpTime,
+            SERVER.player.floorLevel, SERVER.player.gravity
+        );
+        if(PositionFunctionUtils.millisToSec(timeElapsed) >= jumpTime){
+            newPosition = trajectoryData.coords;
+        }
+        return {
+            position: PositionFunctionUtils.clampXPosition(newPosition, this.lastPhysicsState.position, this.dir),
+            velocity: {vx: this.lastPhysicsState.velocity.vx, vy: this.lastPhysicsState.velocity.vy + SERVER.player.gravity * (PositionFunctionUtils.millisToSec(timeElapsed) - jumpTime)}
+        }
+    }
+
+    override getDefaultTimeoutBehavior(): { playerStateGetter: () => PlayerState; animationLength: number; } {
+        let timeBeforeJump = 1 / ANIMATION_DETAILS.QuickJumping.fps * 4;
+        //total time from start of jump to landing (including jump windup)
+        let landingTime = PositionFunctionUtils.calculateTrajectory({position: this.lastPhysicsState.position, velocity: {vx: 0, vy: SERVER.player.quickJumpForce}}, 0, SERVER.player.floorLevel, SERVER.player.gravity).landingTime + timeBeforeJump;
+        // let landingTime = 3; // todo 
+        // console.log(this.lastPhysicsState(), PositionFunctionUtils.calculateTrajectory(this.lastPhysicsState().position, {vx: 0, vy: SERVER.player.jumpForce}, landingTime, SERVER.player.floorLevel, SERVER.player.gravity).coords.y);
+        landingTime *= 1000; // convert from sec to millis
+        return {
+            playerStateGetter: () => new IdleState(this.keybinds, this.dir, this.getFinalPosition()),
+            animationLength: landingTime
+        }
+    }
+}
+
+
 
 export class FallingState extends PlayerState{
     playerStateLabel = PlayerStateLabels.Falling;
