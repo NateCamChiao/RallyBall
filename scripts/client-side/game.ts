@@ -59,22 +59,22 @@ export class Game{
         this.setUpKeyListeners();
         this.findScalingUnit(canvas);
         this.ctx.font = "bold " + PLAYER_ANIMATION.NAME_CONST.NAME_RATIO_TO_SCALING_UNIT * this.scalingUnit + "px monospace"
+        this.addPlayers(PLAYERTYPE.REAL);
+        this.addPlayers(PLAYERTYPE.REAL, {x: 30, y: 63}, "timmy");
+        this.ball = new BallController(this.ctx, this.assets.scene, {x: 70, y:43}, {vx:0, vy:0}, Date.now(), this.serverToClientCoords.bind(this), this.scalingUnit, this.playerList);
         this.inputHandler.addEventCallback((inputData: ClientInputData) => {
             let {keysDown, keysUp, keysHeld} = inputData;
             if(keysHeld.has("q")){
                 this.ball.addPhysicsEvent(Date.now() + 1000, {
                     position:{
-                        x: this.ball.initialPos.x + 10, y: 10
+                        x: this.ball.lastPhysicsState.position.x + 10, y: 10
                     },
                     velocity: {vx: 0, vy:0}
                 });
             }
         })
-        this.updateGame(0);
-        this.addPlayers(PLAYERTYPE.REAL);
-        this.addPlayers(PLAYERTYPE.REAL, {x: 30, y: 63}, "timmy");
-        this.ball = new BallController(this.ctx, this.assets.scene, {x: 70, y:43}, {vx:0, vy:0}, Date.now(), this.serverToClientCoords.bind(this), this.scalingUnit, this.playerList);
         this.createPhysicsChecker();
+        this.updateGame(0);
     }
 
     addPlayers(playerType: PLAYERTYPE, position: Coordinates = {x: 140, y: 63}, name: string = "player"){
@@ -117,6 +117,7 @@ export class Game{
         }
 
         this.playerList.forEach(clientPlayer => clientPlayer.playerRenderer?.updateScalingUnit(this.scalingUnit));
+        this.ball.updateScalingUnit(this.scalingUnit);
     }
 
     renderPlayers(deltatime: number){
@@ -273,6 +274,7 @@ export class Game{
     resize(canvas: HTMLCanvasElement){
         this.findScalingUnit(canvas);
         this.ctx.font = "bold " + PLAYER_ANIMATION.NAME_CONST.NAME_RATIO_TO_SCALING_UNIT * this.scalingUnit + "px monospace";
+        this.ctx.textAlign = "center"
         this.drawScene(0);
     }
 

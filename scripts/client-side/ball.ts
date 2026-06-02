@@ -29,6 +29,10 @@ export class BallController{
         this.playerList = players;
     }
 
+    updateScalingUnit(newScalingUnit: number){
+        this.radius = newScalingUnit * 0.015
+    }
+
     updatePhysicsEvents(){
         
     }
