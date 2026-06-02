@@ -105,7 +105,8 @@ export class PlayerRenderer{
         //draw nametag
         if(this.name.length > 0){
             this.ctx.fillStyle = "black";
-            this.ctx.fillText(this.name, coords.x + playerSize / 2 + playerSize * PLAYER_ANIMATION.NAME_CONST.LEFT_AMOUNT_BY_PLAYER_SIZE, coords.y + playerSize * PLAYER_ANIMATION.NAME_CONST.DOWN_AMOUNT_BY_PLAYER_SIZE);
+            
+            this.ctx.fillText(this.name, coords.x + playerSize / 2 + playerSize * PLAYER_ANIMATION.NAME_CONST.LEFT_AMOUNT_BY_PLAYER_SIZE * this.playerState.dir, coords.y + playerSize * PLAYER_ANIMATION.NAME_CONST.DOWN_AMOUNT_BY_PLAYER_SIZE);
         }
     }
     setName(name: string){
