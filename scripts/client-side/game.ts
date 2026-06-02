@@ -57,7 +57,6 @@ export class Game{
         this.stopUpdating = false;
         this.lastTimeStamp = -1;
         this.setUpKeyListeners();
-        this.findScalingUnit(canvas);
         this.ctx.font = "bold " + PLAYER_ANIMATION.NAME_CONST.NAME_RATIO_TO_SCALING_UNIT * this.scalingUnit + "px monospace"
         this.addPlayers(PLAYERTYPE.REAL);
         this.addPlayers(PLAYERTYPE.REAL, {x: 30, y: 63}, "timmy");
@@ -73,6 +72,7 @@ export class Game{
                 });
             }
         })
+        this.findScalingUnit(canvas);
         this.createPhysicsChecker();
         this.updateGame(0);
     }
