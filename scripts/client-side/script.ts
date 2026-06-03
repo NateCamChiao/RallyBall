@@ -14,7 +14,7 @@ sceneAssets = new Image();
 sceneAssets.src = "assets/Assets(v.0.2).svg";
 playerAssets = new Image();
 playerAssets.src = "assets/Stick(0.23).svg";
-let game: { resize: (arg0: HTMLCanvasElement) => void; };
+let game: Game;
 
 async function waitForImage(image: HTMLImageElement) {
     return new Promise<void>((resolve, reject) => {
