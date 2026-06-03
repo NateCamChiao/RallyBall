@@ -51,7 +51,7 @@ export class PlayerRenderer{
         
         return this.serverToClientCoords(x, y);
     }
-    render(deltatime: number){
+    render(){
         let { maxFrame, mapRow, fps, freezeFrame, initialFrame } = this.animationDetails[this.playerState.playerStateLabel];
         let firstFrameIndex = 0;
         if(initialFrame != undefined){

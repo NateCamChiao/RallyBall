@@ -121,7 +121,7 @@ export class Game{
     }
 
     renderPlayers(deltatime: number){
-        this.playerList.forEach(player => player.playerRenderer?.render(deltatime));
+        this.playerList.forEach(player => player.playerRenderer?.render());
     }
 
     serverToClientCoords(x: number, y: number){
